@@ -1,5 +1,5 @@
 class AuthService {
-  static async login() {
+  static async login(): Promise<{ username: string; password: string }> {
     return new Promise((resolve) =>
       setTimeout(
         () =>

@@ -4,6 +4,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import envVars from "@/config/envVars";
 import logger from "@/config/logger";
 import ApiError from "@/shared/utils/ApiError.util";
+import ApiResponse from "@/shared/utils/ApiResponse.util";
 
 export const errorConverter = (
   err: Error,
@@ -16,7 +17,7 @@ export const errorConverter = (
     const statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
     const message = error.message || ReasonPhrases.INTERNAL_SERVER_ERROR;
 
-    error = new ApiError(statusCode, message);
+    error = new ApiError({ statusCode, message });
   }
 
   next(error);
@@ -28,20 +29,16 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ): void => {
-  const { statusCode, message } = err;
+  const { statusCode, message, errors } = err;
 
   res.locals.errorMessage = message;
-
-  const response = {
-    statusCode,
-    message,
-    ...(envVars.env === "development" && { stack: err.stack }),
-  };
 
   if (envVars.env === "development") {
     logger.error(err);
   }
 
-  res.status(statusCode).json(response);
+  res
+    .status(statusCode)
+    .json(new ApiResponse({ status: "error", statusCode, message, errors }));
   next();
 };

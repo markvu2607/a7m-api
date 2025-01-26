@@ -19,11 +19,7 @@ const logger = winston.createLogger({
     winston.format.splat(),
     winston.format.printf(({ level, message }) => `${level}: ${message}`)
   ),
-  transports: [
-    new winston.transports.Console({
-      stderrLevels: ["error"],
-    }),
-  ],
+  transports: [new winston.transports.Console()],
 });
 
 export default logger;
