@@ -1,17 +1,14 @@
-import { Hono } from "hono";
-import { logger } from "hono/logger";
+import app from "@/app";
+import envVars from "@/config/envVars";
+import logger from "@/config/logger";
 
-const app = new Hono().basePath("/api");
-
-app.use(logger()); // TODO: add custom logger
-
-app.get("/", (c) => {
-  return c.json({
-    message: "Hello, World!",
-  });
+const server = app.listen(envVars.port, () => {
+  console.log(`Server is running on ${envVars.port}`);
 });
 
-export default {
-  port: 9999,
-  fetch: app.fetch,
-};
+process.on("SIGTERM", () => {
+  logger.info("SIGTERM signal received: closing HTTP server");
+  server.close(() => {
+    logger.info("HTTP server closed");
+  });
+});
