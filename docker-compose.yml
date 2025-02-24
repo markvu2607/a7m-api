@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=12345678
+      - POSTGRES_DB=a7m_db
+    ports:
+      - 5432:5432
+    volumes:
+      - a7m_data:/var/lib/postgresql/data
+
+volumes:
+  a7m_data:
+    driver: local

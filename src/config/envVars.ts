@@ -7,6 +7,9 @@ const envVarsSchema = z.object({
   web: z.object({
     url: z.string(),
   }),
+  db: z.object({
+    url: z.string(),
+  }),
 });
 
 const parsedEnvVars = envVarsSchema.safeParse({
@@ -15,6 +18,9 @@ const parsedEnvVars = envVarsSchema.safeParse({
   timeout: Number(process.env.TIMEOUT) || 5000,
   web: {
     url: process.env.WEB_URL || "http://localhost:5173",
+  },
+  db: {
+    url: process.env.DATABASE_URL,
   },
 });
 

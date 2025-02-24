@@ -1,5 +1,6 @@
 import compression from "compression";
 import cors from "cors";
+import "dotenv/config";
 import express from "express";
 import helmet from "helmet";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
@@ -8,8 +9,8 @@ import envVars from "@/config/envVars";
 import morgan from "@/config/morgan";
 import { errorConverter, errorHandler } from "@/middlewares/error.middleware";
 import ApiError from "@/shared/utils/ApiError.util";
-import v1Router from "@/versions/v1/v1.routes";
 import ApiResponse from "@/shared/utils/ApiResponse.util";
+import v1Router from "@/versions/v1/v1.routes";
 
 const app = express();
 
