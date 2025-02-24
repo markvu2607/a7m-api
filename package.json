@@ -9,9 +9,9 @@
     "start": "node --env-file=.env dist/index.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "db:seed": "ts-node -r tsconfig-paths/register ./src/db/seed.ts",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push"
+    "db:migrate": "drizzle-kit migrate"
   },
   "keywords": [],
   "author": "",

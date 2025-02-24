@@ -1,6 +1,5 @@
 import compression from "compression";
 import cors from "cors";
-import "dotenv/config";
 import express from "express";
 import helmet from "helmet";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";

@@ -1,4 +1,4 @@
-import { usersTable } from "./schemas/user.schema";
+import { usersTable } from "./schema/user.schema";
 import db from "./index";
 
 async function main() {
