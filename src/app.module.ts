@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
+import { ApiModule } from '@/api/api.module';
 import config from '@/config/app.config';
 
 import { AppController } from './app.controller';
-import { ProblemsModule } from './problems/problems.module';
 
 @Module({
   imports: [
@@ -12,7 +12,7 @@ import { ProblemsModule } from './problems/problems.module';
       isGlobal: true,
       load: [config],
     }),
-    ProblemsModule,
+    ApiModule,
   ],
   controllers: [AppController],
 })
