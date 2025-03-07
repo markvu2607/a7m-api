@@ -6,27 +6,25 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import { Difficulty } from '../enums/difficulty.enum';
-
-@Entity('problems')
-export class Problem {
+@Entity('submissions')
+export class Submission {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
-  index: number;
-
-  @Column({ unique: true })
-  slug: string;
+  problemId: string;
 
   @Column()
-  title: string;
+  userId: string;
 
   @Column()
-  description: string;
+  code: string;
 
-  @Column({ type: 'enum', enum: Difficulty })
-  difficulty: Difficulty;
+  @Column()
+  status: string;
+
+  @Column()
+  language: string;
 
   @CreateDateColumn()
   createdAt: Date;

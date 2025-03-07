@@ -6,19 +6,13 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('users')
-export class User {
+@Entity('tags')
+export class Tag {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
-  username: string;
-
-  @Column({ unique: true })
-  email: string;
-
   @Column()
-  hashedPassword: string;
+  name: string;
 
   @CreateDateColumn()
   createdAt: Date;
