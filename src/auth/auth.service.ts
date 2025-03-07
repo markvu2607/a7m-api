@@ -63,7 +63,7 @@ export class AuthService {
     newUser.email = registerRequestDto.email;
     newUser.hashedPassword = hashedPassword;
     newUser.username = registerRequestDto.username;
-    const savedUser = await this.usersService.create(newUser);
+    const savedUser = await this.usersService.save(newUser);
 
     const { token: accessToken, expiresIn: accessTokenExpiresIn } =
       this.generateJwt(TOKEN_TYPES.ACCESS, savedUser.id);

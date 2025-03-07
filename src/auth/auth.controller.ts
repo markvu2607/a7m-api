@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
 
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { Public } from '@/common/decorators/public.decorator';
@@ -15,6 +15,7 @@ export class AuthController {
 
   // TODO: add reponse dto interceptor
   @Public()
+  @HttpCode(201)
   @Post('register')
   async register(@Body() registerDto: RegisterRequestDto) {
     return this.authService.register(registerDto);
@@ -22,16 +23,22 @@ export class AuthController {
 
   @Public()
   @UseGuards(JwtLocalGuard)
+  @HttpCode(200)
   @Post('login')
-  login(userId: string) {
+  login(@CurrentUser('sub') userId: string) {
     return this.authService.login(userId);
   }
 
   @RefreshToken()
   @UseGuards(JwtRefreshGuard)
-  @Post('refresh')
+  @HttpCode(200)
+  @Post('refresh-token')
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   refreshToken(@CurrentUser('sub') userId: string) {
     // return this.authService.refreshToken(userId);
+    return {
+      message: 'Token refreshed',
+      userId,
+    };
   }
 }

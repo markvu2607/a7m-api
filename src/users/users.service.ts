@@ -15,7 +15,7 @@ export class UsersService {
     return this.userRepository.findOneBy({ email });
   }
 
-  async create(user: User) {
+  async save(user: User) {
     return this.userRepository.save(user);
   }
 }
