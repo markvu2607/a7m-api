@@ -12,6 +12,19 @@ type AppConfig = {
   database: {
     url: string;
   };
+  jwt: {
+    access: {
+      secret: string;
+      expiresIn: string;
+    };
+    refresh: {
+      secret: string;
+      expiresIn: string;
+    };
+  };
+  salt: {
+    rounds: number;
+  };
 };
 
 export default (): AppConfig => ({
@@ -25,5 +38,18 @@ export default (): AppConfig => ({
   },
   database: {
     url: process.env.DATABASE_URL || 'postgresql://localhost:5432/a7m',
+  },
+  jwt: {
+    access: {
+      secret: process.env.JWT_ACCESS_SECRET!,
+      expiresIn: process.env.JWT_ACCESS_EXPIRES_IN!,
+    },
+    refresh: {
+      secret: process.env.JWT_REFRESH_SECRET!,
+      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN!,
+    },
+  },
+  salt: {
+    rounds: parseInt(process.env.SALT_ROUNDS || '10', 10),
   },
 });

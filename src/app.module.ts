@@ -1,10 +1,17 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ApiModule } from '@/api/api.module';
+
 import config from '@/config/app.config';
 
 import { AppController } from './app.controller';
+import { AuthModule } from './auth/auth.module';
+import { ProblemsModule } from './problems/problems.module';
+import { SolutionsModule } from './solutions/solutions.module';
+import { SubmissionsModule } from './submissions/submissions.module';
+import { TagsModule } from './tags/tags.module';
+import { TestcasesModule } from './testcases/testcases.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -21,7 +28,13 @@ import { AppController } from './app.controller';
         synchronize: true,
       }),
     }),
-    ApiModule,
+    AuthModule,
+    UsersModule,
+    ProblemsModule,
+    SolutionsModule,
+    TestcasesModule,
+    TagsModule,
+    SubmissionsModule,
   ],
   controllers: [AppController],
 })
