@@ -5,21 +5,41 @@ import {
 } from '@nestjs/common';
 
 import {
-  JwtPayload,
-  JwtPayloadKey,
-} from '@/auth/interfaces/jwt-payload.interface';
+  JwtPayloadBase,
+  JwtPayloadBaseKey,
+} from '@/auth/interfaces/jwt-payload-base.interface';
+import {
+  JwtPayloadVerifyEmail,
+  JwtPayloadVerifyEmailKey,
+} from '@/auth/interfaces/jwt-payload-verify-email.interface';
+import { TOKEN_TYPES } from '@/auth/constants/token-types.constant';
 
 interface RequestWithUser extends Request {
-  user: JwtPayload;
+  user: JwtPayloadBase | JwtPayloadVerifyEmail;
+}
+
+function isVerifyEmailPayload(
+  user: JwtPayloadBase | JwtPayloadVerifyEmail,
+): user is JwtPayloadVerifyEmail {
+  return user.type === TOKEN_TYPES.VERIFY_EMAIL;
 }
 
 export const CurrentUser = createParamDecorator(
-  (data: JwtPayloadKey, ctx: ExecutionContext) => {
+  (
+    data: JwtPayloadBaseKey | JwtPayloadVerifyEmailKey,
+    ctx: ExecutionContext,
+  ) => {
     const request = ctx.switchToHttp().getRequest<RequestWithUser>();
     const user = request.user;
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-    return data ? user[data] : user;
+
+    if (!data) return user;
+
+    if (isVerifyEmailPayload(user)) {
+      return user[data as JwtPayloadVerifyEmailKey];
+    }
+    return user[data as JwtPayloadBaseKey];
   },
 );

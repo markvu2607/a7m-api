@@ -1,10 +1,10 @@
 import { TokenType } from '../constants/token-types.constant';
 
-export interface JwtPayload {
+export interface JwtPayloadBase {
   sub: string;
   type: TokenType;
   iat: number;
   exp: number;
 }
 
-export type JwtPayloadKey = keyof JwtPayload;
+export type JwtPayloadBaseKey = keyof JwtPayloadBase;

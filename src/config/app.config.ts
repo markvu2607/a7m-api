@@ -21,9 +21,27 @@ type AppConfig = {
       secret: string;
       expiresIn: string;
     };
+    verifyEmail: {
+      secret: string;
+      expiresIn: string;
+    };
+    resetPassword: {
+      secret: string;
+      expiresIn: string;
+    };
   };
   salt: {
     rounds: number;
+  };
+  mailer: {
+    host: string;
+    port: number;
+    secure: boolean;
+    auth: {
+      user: string;
+      password: string;
+    };
+    defaultFrom: string;
   };
 };
 
@@ -48,8 +66,26 @@ export default (): AppConfig => ({
       secret: process.env.JWT_REFRESH_SECRET!,
       expiresIn: process.env.JWT_REFRESH_EXPIRES_IN!,
     },
+    verifyEmail: {
+      secret: process.env.JWT_VERIFY_EMAIL_SECRET!,
+      expiresIn: process.env.JWT_VERIFY_EMAIL_EXPIRES_IN!,
+    },
+    resetPassword: {
+      secret: process.env.JWT_RESET_PASSWORD_SECRET!,
+      expiresIn: process.env.JWT_RESET_PASSWORD_EXPIRES_IN!,
+    },
   },
   salt: {
     rounds: parseInt(process.env.SALT_ROUNDS || '10', 10),
+  },
+  mailer: {
+    host: process.env.MAIL_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.MAIL_PORT || '587', 10),
+    secure: process.env.MAIL_SECURE === 'true',
+    auth: {
+      user: process.env.MAIL_AUTH_USER || 'test',
+      password: process.env.MAIL_AUTH_PASSWORD || 'test',
+    },
+    defaultFrom: process.env.MAIL_DEFAULT_FROM || 'noreply@a7m.dev',
   },
 });

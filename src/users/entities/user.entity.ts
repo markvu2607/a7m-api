@@ -20,6 +20,9 @@ export class User {
   @Column()
   hashedPassword: string;
 
+  @Column({ default: false })
+  isVerified: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 

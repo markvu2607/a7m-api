@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 
 import { User } from '@/users/entities/user.entity';
 import { UsersService } from '@/users/users.service';
+import { MailerService } from '@/mailer/mailer.service';
 
 import { TOKEN_SCHEMES } from './constants/token-schemes.constant';
 import { TOKEN_TYPES, TokenType } from './constants/token-types.constant';
@@ -24,6 +25,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepository: Repository<RefreshToken>,
+    private readonly mailerService: MailerService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<User> {
@@ -93,6 +95,15 @@ export class AuthService {
       userId: savedUser.id,
     });
 
+    const { token: verifyEmailToken } = this.generateJwt({
+      type: TOKEN_TYPES.VERIFY_EMAIL,
+      sub: savedUser.id,
+      email: savedUser.email,
+      nonce: new Date().getTime(),
+    });
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.mailerService.sendVerificationEmail(savedUser.email, verifyEmailToken);
+
     return {
       tokenType: TOKEN_SCHEMES.BEARER,
       accessToken: accessTokenData.token,
@@ -155,6 +166,27 @@ export class AuthService {
     await this.refreshTokenRepository.update(refreshToken.id, {
       revoked: true,
     });
+  }
+
+  async verifyEmail(email: string, nonce: number) {
+    const user = await this.usersService.findOneByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    if (user.isVerified) {
+      throw new UnauthorizedException('User already verified');
+    }
+
+    await this.usersService.save({
+      ...user,
+      isVerified: true,
+    });
+
+    // TODO: add nonce to redis
+
+    // TODO: send welcome email
+
+    return {};
   }
 
   generateJwt(tokenPayload: TokenPayload): {

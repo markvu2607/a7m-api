@@ -19,6 +19,7 @@ import { UsersModule } from './users/users.module';
       isGlobal: true,
       load: [config],
     }),
+    // TODO: check environment to use synchronize: true or false
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({

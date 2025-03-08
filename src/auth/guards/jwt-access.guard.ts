@@ -3,6 +3,13 @@ import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 
+const listOfIgnoreRoutes = [
+  METADATA_KEYS.IS_PUBLIC_ROUTE,
+  METADATA_KEYS.IS_REFRESH_TOKEN_ROUTE,
+  METADATA_KEYS.IS_VERIFY_EMAIL_ROUTE,
+  METADATA_KEYS.IS_RESET_PASSWORD_ROUTE,
+];
+
 @Injectable()
 export class JwtAccessGuard extends AuthGuard('jwt-access') {
   constructor(private readonly reflector: Reflector) {
@@ -10,17 +17,14 @@ export class JwtAccessGuard extends AuthGuard('jwt-access') {
   }
 
   canActivate(context: ExecutionContext) {
-    const isPublicRoute = this.reflector.getAllAndOverride<boolean>(
-      METADATA_KEYS.IS_PUBLIC_ROUTE,
-      [context.getHandler(), context.getClass()],
+    const isIgnoreRoute = listOfIgnoreRoutes.some((route) =>
+      this.reflector.getAllAndOverride<boolean>(route, [
+        context.getHandler(),
+        context.getClass(),
+      ]),
     );
 
-    const isRefreshTokenRoute = this.reflector.getAllAndOverride<boolean>(
-      METADATA_KEYS.IS_REFRESH_TOKEN_ROUTE,
-      [context.getHandler(), context.getClass()],
-    );
-
-    if (isPublicRoute || isRefreshTokenRoute) {
+    if (isIgnoreRoute) {
       return true;
     }
 

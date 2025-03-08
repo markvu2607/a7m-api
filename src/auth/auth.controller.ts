@@ -7,15 +7,18 @@ import { Public } from '@/common/decorators/public.decorator';
 import { AuthService } from './auth.service';
 import { RefreshToken } from './decorators/refresh.decorator';
 import { RegisterRequestDto } from './dtos/requests/register.request.dto';
-import { JwtLocalGuard } from './guards/jwt-local.guard';
+import { LocalGuard } from './guards/local.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
+import { VerifyEmail } from './decorators/verify-email.decorator';
+import { JwtVerifyEmailGuard } from './guards/jwt-verify-email.guard';
+
+// TODO: add interceptor for reponse dto
+// TODO: add interceptor for response format
+// TODO: implement redis module to save nonce -> check if nonce is used
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
-  // TODO: add interceptor for reponse dto
-  // TODO: add interceptor for response format
   @Public()
   @Post('register')
   @HttpCode(StatusCodes.CREATED)
@@ -24,7 +27,7 @@ export class AuthController {
   }
 
   @Public()
-  @UseGuards(JwtLocalGuard)
+  @UseGuards(LocalGuard)
   @Post('login')
   @HttpCode(StatusCodes.OK)
   async login(@CurrentUser('sub') userId: string) {
@@ -46,23 +49,29 @@ export class AuthController {
     return {};
   }
 
-  // @Public()
-  // @HttpCode(200)
-  // @Post('verify-email')
-  // verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
-  //   return this.authService.verifyEmail(verifyEmailDto);
-  // }
+  @VerifyEmail()
+  @UseGuards(JwtVerifyEmailGuard)
+  @Post('verify-email')
+  @HttpCode(StatusCodes.OK)
+  verifyEmail(
+    @CurrentUser('email') email: string,
+    @CurrentUser('nonce') nonce: number,
+  ) {
+    return this.authService.verifyEmail(email, nonce);
+  }
 
   // @Public()
-  // @HttpCode(200)
   // @Post('forgot-password')
-  // forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+  // @HttpCode(StatusCodes.OK)
+  // forgotPassword(@Body() forgotPasswordDto: ForgotPasswordRequestDto) {
   //   return this.authService.forgotPassword(forgotPasswordDto);
   // }
 
-  // @Public()
-  // @HttpCode(200)
+  // TODO: create secret to generate reset password token
+  // @ResetPassword() // bypass access token
+  // @UseGuards(JwtResetPasswordGuard)
   // @Post('reset-password')
+  // @HttpCode(StatusCodes.OK)
   // resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
   //   return this.authService.resetPassword(resetPasswordDto);
   // }

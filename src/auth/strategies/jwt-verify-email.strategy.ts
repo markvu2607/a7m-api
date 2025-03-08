@@ -6,15 +6,15 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JwtPayloadBase } from '../interfaces/jwt-payload-base.interface';
 
 @Injectable()
-export class JwtRefreshStrategy extends PassportStrategy(
+export class JwtVerifyEmailStrategy extends PassportStrategy(
   Strategy,
-  'jwt-refresh',
+  'jwt-verify-email',
 ) {
   constructor(configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('jwt.refresh.secret')!,
+      secretOrKey: configService.get<string>('jwt.verifyEmail.secret')!,
     });
   }
 
