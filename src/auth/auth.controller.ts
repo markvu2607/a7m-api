@@ -1,4 +1,5 @@
 import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
+import { StatusCodes } from 'http-status-codes';
 
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { Public } from '@/common/decorators/public.decorator';
@@ -13,32 +14,56 @@ import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  // TODO: add reponse dto interceptor
+  // TODO: add interceptor for reponse dto
+  // TODO: add interceptor for response format
   @Public()
-  @HttpCode(201)
   @Post('register')
+  @HttpCode(StatusCodes.CREATED)
   async register(@Body() registerDto: RegisterRequestDto) {
-    return this.authService.register(registerDto);
+    return await this.authService.register(registerDto);
   }
 
   @Public()
   @UseGuards(JwtLocalGuard)
-  @HttpCode(200)
   @Post('login')
-  login(@CurrentUser('sub') userId: string) {
-    return this.authService.login(userId);
+  @HttpCode(StatusCodes.OK)
+  async login(@CurrentUser('sub') userId: string) {
+    return await this.authService.login(userId);
   }
 
   @RefreshToken()
   @UseGuards(JwtRefreshGuard)
-  @HttpCode(200)
   @Post('refresh-token')
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  refreshToken(@CurrentUser('sub') userId: string) {
-    // return this.authService.refreshToken(userId);
-    return {
-      message: 'Token refreshed',
-      userId,
-    };
+  @HttpCode(StatusCodes.OK)
+  async refreshToken(@CurrentUser('sub') userId: string) {
+    return await this.authService.refreshToken(userId);
   }
+
+  @Post('logout')
+  @HttpCode(StatusCodes.OK)
+  async logout(@CurrentUser('sub') userId: string) {
+    await this.authService.logout(userId);
+    return {};
+  }
+
+  // @Public()
+  // @HttpCode(200)
+  // @Post('verify-email')
+  // verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
+  //   return this.authService.verifyEmail(verifyEmailDto);
+  // }
+
+  // @Public()
+  // @HttpCode(200)
+  // @Post('forgot-password')
+  // forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+  //   return this.authService.forgotPassword(forgotPasswordDto);
+  // }
+
+  // @Public()
+  // @HttpCode(200)
+  // @Post('reset-password')
+  // resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+  //   return this.authService.resetPassword(resetPasswordDto);
+  // }
 }

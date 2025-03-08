@@ -11,9 +11,16 @@ import { JwtAccessGuard } from './guards/jwt-access.guard';
 import { JwtAccessStrategy } from './strategies/jwt-access.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { RefreshToken } from './entities/refresh-token.entity';
 
 @Module({
-  imports: [PassportModule, JwtModule.register({}), UsersModule],
+  imports: [
+    PassportModule,
+    JwtModule.register({}),
+    UsersModule,
+    TypeOrmModule.forFeature([RefreshToken]),
+  ],
   controllers: [AuthController],
   providers: [
     AuthService,

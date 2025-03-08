@@ -15,6 +15,10 @@ export class UsersService {
     return this.userRepository.findOneBy({ email });
   }
 
+  async findOneById(id: string) {
+    return this.userRepository.findOneBy({ id });
+  }
+
   async save(user: User) {
     return this.userRepository.save(user);
   }

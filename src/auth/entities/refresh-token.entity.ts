@@ -4,24 +4,23 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  Unique,
 } from 'typeorm';
 
 @Entity('refresh_tokens')
+@Unique(['userId'])
 export class RefreshToken {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  userId: number;
+  @Column('uuid')
+  userId: string;
 
   @Column()
   token: string;
 
-  @Column()
+  @Column({ default: false })
   revoked: boolean;
-
-  @Column()
-  expiresAt: Date;
 
   @CreateDateColumn()
   createdAt: Date;
