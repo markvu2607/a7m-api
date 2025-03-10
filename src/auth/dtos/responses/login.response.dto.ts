@@ -1,8 +1,8 @@
 export class LoginResponseDto {
   public tokenType: string;
   public accessToken: string;
-  public refreshToken: string;
   public expiresIn: number;
+  public refreshToken: string;
 
   constructor({
     tokenType,
@@ -12,7 +12,7 @@ export class LoginResponseDto {
   }: LoginResponseDto) {
     this.tokenType = tokenType;
     this.accessToken = accessToken;
-    this.refreshToken = refreshToken;
     this.expiresIn = expiresIn;
+    this.refreshToken = refreshToken;
   }
 }

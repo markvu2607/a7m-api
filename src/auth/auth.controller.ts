@@ -22,6 +22,8 @@ import { JwtResetPasswordGuard } from './guards/jwt-reset-password.guard';
 import { JwtVerifyEmailGuard } from './guards/jwt-verify-email.guard';
 import { LocalGuard } from './guards/local.guard';
 
+// TODO: implement permission with role (casl)
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -83,10 +85,10 @@ export class AuthController {
   @HttpCode(StatusCodes.OK)
   @MessageResponse(MESSAGES.VERIFY_EMAIL_SUCCESS)
   async verifyEmail(
+    @CurrentUser('jti') jti: string,
     @CurrentUser('sub') userId: string,
-    @CurrentUser('nonce') nonce: number,
   ) {
-    await this.authService.verifyEmail(userId, nonce);
+    await this.authService.verifyEmail(jti, userId);
     return {};
   }
 
@@ -105,15 +107,11 @@ export class AuthController {
   @HttpCode(StatusCodes.OK)
   @MessageResponse(MESSAGES.RESET_PASSWORD_SUCCESS)
   async resetPassword(
+    @CurrentUser('jti') jti: string,
     @CurrentUser('sub') userId: string,
-    @CurrentUser('nonce') nonce: number,
     @Body() resetPasswordRequestDto: ResetPasswordRequestDto,
   ) {
-    await this.authService.resetPassword(
-      userId,
-      nonce,
-      resetPasswordRequestDto,
-    );
+    await this.authService.resetPassword(jti, userId, resetPasswordRequestDto);
     return {};
   }
 }

@@ -7,6 +7,7 @@ import * as argon2 from 'argon2';
 import { Cache } from 'cache-manager';
 import ms, { StringValue } from 'ms';
 import { Repository } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 
 import { MailerService } from '@/mailer/mailer.service';
 import { User } from '@/users/entities/user.entity';
@@ -16,8 +17,8 @@ import { TOKEN_SCHEMES } from './constants/token-schemes.constant';
 import { TOKEN_TYPES, TokenType } from './constants/token-types.constant';
 import { ForgotPasswordRequestDto } from './dtos/requests/forgot-password.request.dto';
 import { RegisterRequestDto } from './dtos/requests/register.request.dto';
-import { RefreshToken } from './entities/refresh-token.entity';
 import { ResetPasswordRequestDto } from './dtos/requests/reset-password.request.dto';
+import { RefreshToken } from './entities/refresh-token.entity';
 
 type TokenPayload = { type: TokenType; sub: string } & Record<string, unknown>;
 
@@ -41,10 +42,13 @@ export class AuthService {
     const expiresIn = this.configService.get<StringValue>(
       `jwt.${tokenPayload.type}.expiresIn`,
     )!;
-    const token = this.jwtService.sign(tokenPayload, {
-      secret: this.configService.get(`jwt.${tokenPayload.type}.secret`),
-      expiresIn,
-    });
+    const token = this.jwtService.sign(
+      { jti: uuidv4(), ...tokenPayload },
+      {
+        secret: this.configService.get(`jwt.${tokenPayload.type}.secret`),
+        expiresIn,
+      },
+    );
 
     return { token, expiresIn: ms(expiresIn) / 1000 };
   }
@@ -126,7 +130,6 @@ export class AuthService {
       type: TOKEN_TYPES.VERIFY_EMAIL,
       sub: savedUser.id,
       email: savedUser.email,
-      nonce: new Date().getTime(),
     });
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.mailerService.sendVerificationEmail(savedUser.email, verifyEmailToken);
@@ -199,8 +202,8 @@ export class AuthService {
     });
   }
 
-  async verifyEmail(userId: string, nonce: number) {
-    const key = `verify-email:${userId}:${nonce}`;
+  async verifyEmail(jti: string, userId: string) {
+    const key = `verify-email:${userId}:${jti}`;
     if (await this.cacheManager.get(key)) {
       throw new UnauthorizedException('Email already verified');
     }
@@ -242,18 +245,17 @@ export class AuthService {
       type: TOKEN_TYPES.RESET_PASSWORD,
       sub: user.id,
       email: user.email,
-      nonce: new Date().getTime(),
     });
 
     await this.mailerService.sendPasswordResetEmail(email, resetPasswordToken);
   }
 
   async resetPassword(
+    jti: string,
     userId: string,
-    nonce: number,
     resetPasswordRequestDto: ResetPasswordRequestDto,
   ) {
-    const key = `reset-password:${userId}:${nonce}`;
+    const key = `reset-password:${userId}:${jti}`;
     if (await this.cacheManager.get(key)) {
       throw new UnauthorizedException('Reset password token already used');
     }
