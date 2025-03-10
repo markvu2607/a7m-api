@@ -6,11 +6,12 @@ import { Public } from '@/common/decorators/public.decorator';
 
 import { AuthService } from './auth.service';
 import { RefreshToken } from './decorators/refresh.decorator';
-import { RegisterRequestDto } from './dtos/requests/register.request.dto';
-import { LocalGuard } from './guards/local.guard';
-import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { VerifyEmail } from './decorators/verify-email.decorator';
+import { ForgotPasswordRequestDto } from './dtos/requests/forgot-password.request.dto';
+import { RegisterRequestDto } from './dtos/requests/register.request.dto';
+import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { JwtVerifyEmailGuard } from './guards/jwt-verify-email.guard';
+import { LocalGuard } from './guards/local.guard';
 
 // TODO: add interceptor for reponse dto
 // TODO: add interceptor for response format
@@ -60,12 +61,12 @@ export class AuthController {
     return this.authService.verifyEmail(email, nonce);
   }
 
-  // @Public()
-  // @Post('forgot-password')
-  // @HttpCode(StatusCodes.OK)
-  // forgotPassword(@Body() forgotPasswordDto: ForgotPasswordRequestDto) {
-  //   return this.authService.forgotPassword(forgotPasswordDto);
-  // }
+  @Public()
+  @Post('forgot-password')
+  @HttpCode(StatusCodes.OK)
+  forgotPassword(@Body() forgotPasswordDto: ForgotPasswordRequestDto) {
+    return this.authService.forgotPassword(forgotPasswordDto);
+  }
 
   // TODO: create secret to generate reset password token
   // @ResetPassword() // bypass access token

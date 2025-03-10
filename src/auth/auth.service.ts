@@ -14,6 +14,7 @@ import { UsersService } from '@/users/users.service';
 
 import { TOKEN_SCHEMES } from './constants/token-schemes.constant';
 import { TOKEN_TYPES, TokenType } from './constants/token-types.constant';
+import { ForgotPasswordRequestDto } from './dtos/requests/forgot-password.request.dto';
 import { RegisterRequestDto } from './dtos/requests/register.request.dto';
 import { RefreshToken } from './entities/refresh-token.entity';
 
@@ -31,6 +32,25 @@ export class AuthService {
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
   ) {}
+
+  generateJwt(tokenPayload: TokenPayload): {
+    token: string;
+    expiresIn: number;
+  } {
+    const expiresIn = this.configService.get<StringValue>(
+      `jwt.${tokenPayload.type}.expiresIn`,
+    )!;
+    const token = this.jwtService.sign(tokenPayload, {
+      secret: this.configService.get(`jwt.${tokenPayload.type}.secret`),
+      expiresIn,
+    });
+
+    return { token, expiresIn: ms(expiresIn) / 1000 };
+  }
+
+  generateJwts(tokenPayloads: TokenPayload[]) {
+    return tokenPayloads.map((tokenPayload) => this.generateJwt(tokenPayload));
+  }
 
   async validateUser(email: string, password: string): Promise<User> {
     const user = await this.usersService.findOneByEmail(email);
@@ -203,22 +223,21 @@ export class AuthService {
     return {};
   }
 
-  generateJwt(tokenPayload: TokenPayload): {
-    token: string;
-    expiresIn: number;
-  } {
-    const expiresIn = this.configService.get<StringValue>(
-      `jwt.${tokenPayload.type}.expiresIn`,
-    )!;
-    const token = this.jwtService.sign(tokenPayload, {
-      secret: this.configService.get(`jwt.${tokenPayload.type}.secret`),
-      expiresIn,
+  async forgotPassword({ email }: ForgotPasswordRequestDto) {
+    const user = await this.usersService.findOneByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const { token: resetPasswordToken } = this.generateJwt({
+      type: TOKEN_TYPES.RESET_PASSWORD,
+      sub: user.id,
+      email: user.email,
+      nonce: new Date().getTime(),
     });
 
-    return { token, expiresIn: ms(expiresIn) / 1000 };
-  }
+    await this.mailerService.sendPasswordResetEmail(email, resetPasswordToken);
 
-  generateJwts(tokenPayloads: TokenPayload[]) {
-    return tokenPayloads.map((tokenPayload) => this.generateJwt(tokenPayload));
+    return {};
   }
 }
