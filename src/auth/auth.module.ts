@@ -13,8 +13,9 @@ import { RefreshToken } from './entities/refresh-token.entity';
 import { JwtAccessGuard } from './guards/jwt-access.guard';
 import { JwtAccessStrategy } from './strategies/jwt-access.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
-import { LocalStrategy } from './strategies/local.strategy';
+import { JwtResetPasswordStrategy } from './strategies/jwt-reset-password.strategy';
 import { JwtVerifyEmailStrategy } from './strategies/jwt-verify-email.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { JwtVerifyEmailStrategy } from './strategies/jwt-verify-email.strategy';
     JwtAccessStrategy,
     JwtRefreshStrategy,
     JwtVerifyEmailStrategy,
+    JwtResetPasswordStrategy,
     {
       provide: APP_GUARD,
       useClass: JwtAccessGuard,

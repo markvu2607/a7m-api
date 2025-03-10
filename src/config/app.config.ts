@@ -33,9 +33,6 @@ type AppConfig = {
       expiresIn: string;
     };
   };
-  salt: {
-    rounds: number;
-  };
   mailer: {
     host: string;
     port: number;
@@ -80,9 +77,6 @@ export default (): AppConfig => ({
       secret: process.env.JWT_RESET_PASSWORD_SECRET!,
       expiresIn: process.env.JWT_RESET_PASSWORD_EXPIRES_IN!,
     },
-  },
-  salt: {
-    rounds: parseInt(process.env.SALT_ROUNDS || '10', 10),
   },
   mailer: {
     host: process.env.MAIL_HOST || 'smtp.gmail.com',

@@ -4,29 +4,29 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 
+import { TOKEN_TYPES } from '@/auth/constants/token-types.constant';
 import {
   JwtPayloadBase,
   JwtPayloadBaseKey,
 } from '@/auth/interfaces/jwt-payload-base.interface';
 import {
-  JwtPayloadVerifyEmail,
-  JwtPayloadVerifyEmailKey,
-} from '@/auth/interfaces/jwt-payload-verify-email.interface';
-import { TOKEN_TYPES } from '@/auth/constants/token-types.constant';
+  JwtPayloadOneTimeUsed,
+  JwtPayloadOneTimeUsedKey,
+} from '@/auth/interfaces/jwt-payload-one-time-used.interface';
 
 interface RequestWithUser extends Request {
-  user: JwtPayloadBase | JwtPayloadVerifyEmail;
+  user: JwtPayloadBase | JwtPayloadOneTimeUsed;
 }
 
 function isVerifyEmailPayload(
-  user: JwtPayloadBase | JwtPayloadVerifyEmail,
-): user is JwtPayloadVerifyEmail {
+  user: JwtPayloadBase | JwtPayloadOneTimeUsed,
+): user is JwtPayloadOneTimeUsed {
   return user.type === TOKEN_TYPES.VERIFY_EMAIL;
 }
 
 export const CurrentUser = createParamDecorator(
   (
-    data: JwtPayloadBaseKey | JwtPayloadVerifyEmailKey,
+    data: JwtPayloadBaseKey | JwtPayloadOneTimeUsedKey,
     ctx: ExecutionContext,
   ) => {
     const request = ctx.switchToHttp().getRequest<RequestWithUser>();
@@ -38,7 +38,7 @@ export const CurrentUser = createParamDecorator(
     if (!data) return user;
 
     if (isVerifyEmailPayload(user)) {
-      return user[data as JwtPayloadVerifyEmailKey];
+      return user[data as JwtPayloadOneTimeUsedKey];
     }
     return user[data as JwtPayloadBaseKey];
   },

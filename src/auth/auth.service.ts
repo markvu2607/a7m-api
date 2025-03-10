@@ -17,6 +17,7 @@ import { TOKEN_TYPES, TokenType } from './constants/token-types.constant';
 import { ForgotPasswordRequestDto } from './dtos/requests/forgot-password.request.dto';
 import { RegisterRequestDto } from './dtos/requests/register.request.dto';
 import { RefreshToken } from './entities/refresh-token.entity';
+import { ResetPasswordRequestDto } from './dtos/requests/reset-password.request.dto';
 
 type TokenPayload = { type: TokenType; sub: string } & Record<string, unknown>;
 
@@ -55,12 +56,12 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<User> {
     const user = await this.usersService.findOneByEmail(email);
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     const isPasswordValid = await argon2.verify(user.hashedPassword, password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid password');
+      throw new UnauthorizedException('Invalid email orpassword');
     }
 
     return user;
@@ -192,13 +193,13 @@ export class AuthService {
     });
   }
 
-  async verifyEmail(email: string, nonce: number) {
-    const key = `verify-email:${email}:${nonce}`;
+  async verifyEmail(userId: string, nonce: number) {
+    const key = `verify-email:${userId}:${nonce}`;
     if (await this.cacheManager.get(key)) {
       throw new UnauthorizedException('Email already verified');
     }
 
-    const user = await this.usersService.findOneByEmail(email);
+    const user = await this.usersService.findOneById(userId);
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
@@ -218,7 +219,7 @@ export class AuthService {
     );
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.mailerService.sendWelcomeEmail(email);
+    this.mailerService.sendWelcomeEmail(user.email);
 
     return {};
   }
@@ -229,6 +230,10 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
+    if (!user.isVerified) {
+      throw new UnauthorizedException('User not verified');
+    }
+
     const { token: resetPasswordToken } = this.generateJwt({
       type: TOKEN_TYPES.RESET_PASSWORD,
       sub: user.id,
@@ -237,6 +242,37 @@ export class AuthService {
     });
 
     await this.mailerService.sendPasswordResetEmail(email, resetPasswordToken);
+
+    return {};
+  }
+
+  async resetPassword(
+    userId: string,
+    nonce: number,
+    resetPasswordRequestDto: ResetPasswordRequestDto,
+  ) {
+    const key = `reset-password:${userId}:${nonce}`;
+    if (await this.cacheManager.get(key)) {
+      throw new UnauthorizedException('Reset password token already used');
+    }
+
+    const user = await this.usersService.findOneById(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const hashedPassword = await argon2.hash(resetPasswordRequestDto.password);
+
+    await this.usersService.save({
+      ...user,
+      hashedPassword,
+    });
+
+    await this.cacheManager.set(
+      key,
+      'reset',
+      Number(ms(this.configService.get('jwt.resetPassword.expiresIn')!)),
+    );
 
     return {};
   }

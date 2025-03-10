@@ -6,10 +6,13 @@ import { Public } from '@/common/decorators/public.decorator';
 
 import { AuthService } from './auth.service';
 import { RefreshToken } from './decorators/refresh.decorator';
+import { ResetPassword } from './decorators/reset-password.decorator';
 import { VerifyEmail } from './decorators/verify-email.decorator';
 import { ForgotPasswordRequestDto } from './dtos/requests/forgot-password.request.dto';
 import { RegisterRequestDto } from './dtos/requests/register.request.dto';
+import { ResetPasswordRequestDto } from './dtos/requests/reset-password.request.dto';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
+import { JwtResetPasswordGuard } from './guards/jwt-reset-password.guard';
 import { JwtVerifyEmailGuard } from './guards/jwt-verify-email.guard';
 import { LocalGuard } from './guards/local.guard';
 
@@ -55,10 +58,10 @@ export class AuthController {
   @Post('verify-email')
   @HttpCode(StatusCodes.OK)
   verifyEmail(
-    @CurrentUser('email') email: string,
+    @CurrentUser('sub') userId: string,
     @CurrentUser('nonce') nonce: number,
   ) {
-    return this.authService.verifyEmail(email, nonce);
+    return this.authService.verifyEmail(userId, nonce);
   }
 
   @Public()
@@ -68,12 +71,19 @@ export class AuthController {
     return this.authService.forgotPassword(forgotPasswordDto);
   }
 
-  // TODO: create secret to generate reset password token
-  // @ResetPassword() // bypass access token
-  // @UseGuards(JwtResetPasswordGuard)
-  // @Post('reset-password')
-  // @HttpCode(StatusCodes.OK)
-  // resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-  //   return this.authService.resetPassword(resetPasswordDto);
-  // }
+  @ResetPassword()
+  @UseGuards(JwtResetPasswordGuard)
+  @Post('reset-password')
+  @HttpCode(StatusCodes.OK)
+  resetPassword(
+    @CurrentUser('sub') userId: string,
+    @CurrentUser('nonce') nonce: number,
+    @Body() resetPasswordRequestDto: ResetPasswordRequestDto,
+  ) {
+    return this.authService.resetPassword(
+      userId,
+      nonce,
+      resetPasswordRequestDto,
+    );
+  }
 }
