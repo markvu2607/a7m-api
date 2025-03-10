@@ -36,6 +36,14 @@ export class MailerService {
     });
   }
 
+  async sendWelcomeEmail(email: string): Promise<void> {
+    await this.sendMail({
+      to: email,
+      subject: 'Welcome to A7M',
+      html: '<p>Welcome to A7M</p>',
+    });
+  }
+
   async sendPasswordResetEmail(email: string, token: string): Promise<void> {
     const webUrl = this.configService.get<string>('web.url');
     const resetLink = `${webUrl}/reset-password?token=${token}`;

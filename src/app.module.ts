@@ -1,3 +1,5 @@
+import { createKeyv } from '@keyv/redis';
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -27,6 +29,13 @@ import { UsersModule } from './users/users.module';
         url: configService.get('database.url'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true,
+      }),
+    }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        stores: [createKeyv(configService.get('redis.url'))],
       }),
     }),
     AuthModule,

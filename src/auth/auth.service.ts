@@ -1,14 +1,16 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as argon2 from 'argon2';
+import { Cache } from 'cache-manager';
 import ms, { StringValue } from 'ms';
 import { Repository } from 'typeorm';
 
+import { MailerService } from '@/mailer/mailer.service';
 import { User } from '@/users/entities/user.entity';
 import { UsersService } from '@/users/users.service';
-import { MailerService } from '@/mailer/mailer.service';
 
 import { TOKEN_SCHEMES } from './constants/token-schemes.constant';
 import { TOKEN_TYPES, TokenType } from './constants/token-types.constant';
@@ -26,6 +28,8 @@ export class AuthService {
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepository: Repository<RefreshToken>,
     private readonly mailerService: MailerService,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
   ) {}
 
   async validateUser(email: string, password: string): Promise<User> {
@@ -169,6 +173,11 @@ export class AuthService {
   }
 
   async verifyEmail(email: string, nonce: number) {
+    const key = `verify-email:${email}:${nonce}`;
+    if (await this.cacheManager.get(key)) {
+      throw new UnauthorizedException('Email already verified');
+    }
+
     const user = await this.usersService.findOneByEmail(email);
     if (!user) {
       throw new UnauthorizedException('User not found');
@@ -182,9 +191,14 @@ export class AuthService {
       isVerified: true,
     });
 
-    // TODO: add nonce to redis
+    await this.cacheManager.set(
+      key,
+      'verified',
+      Number(ms(this.configService.get('jwt.verifyEmail.expiresIn')!)),
+    );
 
-    // TODO: send welcome email
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.mailerService.sendWelcomeEmail(email);
 
     return {};
   }
