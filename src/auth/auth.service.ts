@@ -53,7 +53,7 @@ export class AuthService {
     return tokenPayloads.map((tokenPayload) => this.generateJwt(tokenPayload));
   }
 
-  async validateUser(email: string, password: string): Promise<User> {
+  async validateUser({ email, password }: { email: string; password: string }) {
     const user = await this.usersService.findOneByEmail(email);
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
@@ -61,7 +61,7 @@ export class AuthService {
 
     const isPasswordValid = await argon2.verify(user.hashedPassword, password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid email orpassword');
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     return user;
@@ -85,10 +85,12 @@ export class AuthService {
     );
 
     return {
-      tokenType: TOKEN_SCHEMES.BEARER,
-      accessToken: accessTokenData.token,
-      expiresIn: accessTokenData.expiresIn,
-      refreshToken: refreshTokenData.token,
+      data: {
+        tokenType: TOKEN_SCHEMES.BEARER,
+        accessToken: accessTokenData.token,
+        expiresIn: accessTokenData.expiresIn,
+        refreshToken: refreshTokenData.token,
+      },
     };
   }
 
@@ -130,10 +132,12 @@ export class AuthService {
     this.mailerService.sendVerificationEmail(savedUser.email, verifyEmailToken);
 
     return {
-      tokenType: TOKEN_SCHEMES.BEARER,
-      accessToken: accessTokenData.token,
-      expiresIn: accessTokenData.expiresIn,
-      refreshToken: refreshTokenData.token,
+      data: {
+        tokenType: TOKEN_SCHEMES.BEARER,
+        accessToken: accessTokenData.token,
+        expiresIn: accessTokenData.expiresIn,
+        refreshToken: refreshTokenData.token,
+      },
     };
   }
 
@@ -168,10 +172,12 @@ export class AuthService {
     });
 
     return {
-      tokenType: TOKEN_SCHEMES.BEARER,
-      accessToken: accessTokenData.token,
-      expiresIn: accessTokenData.expiresIn,
-      refreshToken: refreshTokenData.token,
+      data: {
+        tokenType: TOKEN_SCHEMES.BEARER,
+        accessToken: accessTokenData.token,
+        expiresIn: accessTokenData.expiresIn,
+        refreshToken: refreshTokenData.token,
+      },
     };
   }
 
@@ -220,8 +226,6 @@ export class AuthService {
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.mailerService.sendWelcomeEmail(user.email);
-
-    return {};
   }
 
   async forgotPassword({ email }: ForgotPasswordRequestDto) {
@@ -242,8 +246,6 @@ export class AuthService {
     });
 
     await this.mailerService.sendPasswordResetEmail(email, resetPasswordToken);
-
-    return {};
   }
 
   async resetPassword(
@@ -273,7 +275,5 @@ export class AuthService {
       'reset',
       Number(ms(this.configService.get('jwt.resetPassword.expiresIn')!)),
     );
-
-    return {};
   }
 }

@@ -2,12 +2,14 @@ import { createKeyv } from '@keyv/redis';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import config from '@/config/app.config';
 
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
+import { ResponseFormatInterceptor } from './common/interceptors/response-format.interceptor';
 import { ProblemsModule } from './problems/problems.module';
 import { SolutionsModule } from './solutions/solutions.module';
 import { SubmissionsModule } from './submissions/submissions.module';
@@ -47,5 +49,11 @@ import { UsersModule } from './users/users.module';
     SubmissionsModule,
   ],
   controllers: [AppController],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseFormatInterceptor,
+    },
+  ],
 })
 export class AppModule {}
