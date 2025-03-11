@@ -10,7 +10,7 @@ import { Response as ExpressResponse } from 'express';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ResponseData } from '../types/response-data.type';
+import { ResponseData } from '../interfaces/response-data.interface';
 import { METADATA_KEYS } from '../constants/metadata-key.constant';
 
 interface ResponseFormat<T> extends ResponseData<T> {

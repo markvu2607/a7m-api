@@ -6,4 +6,11 @@ export const MESSAGES = {
   VERIFY_EMAIL_SUCCESS: 'Verify email successfully!',
   FORGOT_PASSWORD_SUCCESS: 'Send reset password email successfully!',
   RESET_PASSWORD_SUCCESS: 'Reset password successfully!',
+  INVALID_EMAIL_OR_PASSWORD: 'Invalid email or password!',
+  USER_ALREADY_EXISTS: 'User already exists!',
+  TOKEN_REVOKED: 'Token revoked!',
+  GET_ME_SUCCESS: 'Get me successfully!',
+  USER_NOT_FOUND: 'User not found!',
+  USER_ALREADY_VERIFIED: 'User already verified!',
+  USER_NOT_VERIFIED: 'User not verified!',
 } as const;

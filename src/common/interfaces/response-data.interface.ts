@@ -1,4 +1,4 @@
-export type ResponseData<T> = {
+export interface ResponseData<T> {
   data?: T;
   metadata?: Record<string, any>;
-};
+}

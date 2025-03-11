@@ -1,18 +1,8 @@
-export class RegisterResponseDto {
-  public tokenType: string;
-  public accessToken: string;
-  public expiresIn: number;
-  public refreshToken: string;
+import { Expose } from 'class-transformer';
 
-  constructor({
-    tokenType,
-    accessToken,
-    refreshToken,
-    expiresIn,
-  }: RegisterResponseDto) {
-    this.tokenType = tokenType;
-    this.accessToken = accessToken;
-    this.expiresIn = expiresIn;
-    this.refreshToken = refreshToken;
-  }
+import { TokenResponseDto } from './token.response.dto';
+
+export class RegisterResponseDto {
+  @Expose()
+  data: TokenResponseDto;
 }

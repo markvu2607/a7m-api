@@ -5,7 +5,7 @@ import { MESSAGES } from '@/common/constants/message.constant';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { MessageResponse } from '@/common/decorators/message-response.decorator';
 import { Public } from '@/common/decorators/public.decorator';
-import { ResponseData } from '@/common/types/response-data.type';
+import { Serialize } from '@/common/interceptors/serilize.interceptor';
 
 import { AuthService } from './auth.service';
 import { RefreshToken } from './decorators/refresh.decorator';
@@ -28,13 +28,13 @@ export class AuthController {
   @Post('register')
   @HttpCode(StatusCodes.CREATED)
   @MessageResponse(MESSAGES.REGISTER_SUCCESS)
+  @Serialize(RegisterResponseDto)
   async register(
     @Body() registerDto: RegisterRequestDto,
-  ): Promise<ResponseData<RegisterResponseDto>> {
+  ): Promise<RegisterResponseDto> {
     const { data } = await this.authService.register(registerDto);
-    const responseData = new RegisterResponseDto(data);
     return {
-      data: responseData,
+      data,
     };
   }
 
@@ -43,13 +43,11 @@ export class AuthController {
   @Post('login')
   @HttpCode(StatusCodes.OK)
   @MessageResponse(MESSAGES.LOGIN_SUCCESS)
-  async login(
-    @CurrentUser('sub') userId: string,
-  ): Promise<ResponseData<LoginResponseDto>> {
-    const { data } = await this.authService.login(userId);
-    const responseData = new LoginResponseDto(data);
+  @Serialize(LoginResponseDto)
+  login(@CurrentUser('sub') userId: string): LoginResponseDto {
+    const { data } = this.authService.login(userId);
     return {
-      data: responseData,
+      data,
     };
   }
 
@@ -57,14 +55,14 @@ export class AuthController {
   @Post('refresh-token')
   @HttpCode(StatusCodes.OK)
   @MessageResponse(MESSAGES.REFRESH_TOKEN_SUCCESS)
+  @Serialize(RefreshTokenResponseDto)
   async refreshToken(
     @CurrentUser('jti') jti: string,
     @CurrentUser('sub') userId: string,
-  ): Promise<ResponseData<RefreshTokenResponseDto>> {
+  ): Promise<RefreshTokenResponseDto> {
     const { data } = await this.authService.refreshToken(jti, userId);
-    const responseData = new RefreshTokenResponseDto(data);
     return {
-      data: responseData,
+      data,
     };
   }
 

@@ -7,6 +7,7 @@ import { Cache } from 'cache-manager';
 import ms, { StringValue } from 'ms';
 import { v4 as uuidv4 } from 'uuid';
 
+import { MESSAGES } from '@/common/constants/message.constant';
 import { MailerService } from '@/mailer/mailer.service';
 import { User } from '@/users/entities/user.entity';
 import { UsersService } from '@/users/users.service';
@@ -52,12 +53,12 @@ export class AuthService {
   async validateUser({ email, password }: { email: string; password: string }) {
     const user = await this.usersService.findOneByEmail(email);
     if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException(MESSAGES.INVALID_EMAIL_OR_PASSWORD);
     }
 
     const isPasswordValid = await argon2.verify(user.hashedPassword, password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException(MESSAGES.INVALID_EMAIL_OR_PASSWORD);
     }
 
     return user;
@@ -87,7 +88,7 @@ export class AuthService {
       registerRequestDto.email,
     );
     if (user) {
-      throw new UnauthorizedException('User already exists');
+      throw new UnauthorizedException(MESSAGES.USER_ALREADY_EXISTS);
     }
 
     const hashedPassword = await argon2.hash(registerRequestDto.password);
@@ -129,7 +130,7 @@ export class AuthService {
   async refreshToken(oldJti: string, userId: string) {
     const key = `blacklist-token:${userId}:${oldJti}`;
     if (await this.cacheManager.get(key)) {
-      throw new UnauthorizedException('Refresh token revoked');
+      throw new UnauthorizedException(MESSAGES.TOKEN_REVOKED);
     }
 
     await this.cacheManager.set(
@@ -140,7 +141,7 @@ export class AuthService {
 
     const user = await this.usersService.findOneById(userId);
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException(MESSAGES.USER_NOT_FOUND);
     }
 
     const jti = uuidv4();
@@ -173,7 +174,7 @@ export class AuthService {
   async verifyEmail(jti: string, userId: string) {
     const key = `blacklist-token:${userId}:${jti}`;
     if (await this.cacheManager.get(key)) {
-      throw new UnauthorizedException('Token already used');
+      throw new UnauthorizedException(MESSAGES.TOKEN_REVOKED);
     }
 
     await this.cacheManager.set(
@@ -184,10 +185,10 @@ export class AuthService {
 
     const user = await this.usersService.findOneById(userId);
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException(MESSAGES.USER_NOT_FOUND);
     }
     if (user.isVerified) {
-      throw new UnauthorizedException('User already verified');
+      throw new UnauthorizedException(MESSAGES.USER_ALREADY_VERIFIED);
     }
 
     await this.usersService.save({
@@ -202,11 +203,11 @@ export class AuthService {
   async forgotPassword({ email }: ForgotPasswordRequestDto) {
     const user = await this.usersService.findOneByEmail(email);
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException(MESSAGES.USER_NOT_FOUND);
     }
 
     if (!user.isVerified) {
-      throw new UnauthorizedException('User not verified');
+      throw new UnauthorizedException(MESSAGES.USER_NOT_VERIFIED);
     }
 
     const jti = uuidv4();
@@ -227,7 +228,7 @@ export class AuthService {
   ) {
     const key = `blacklist-token:${userId}:${jti}`;
     if (await this.cacheManager.get(key)) {
-      throw new UnauthorizedException('Reset password token already used');
+      throw new UnauthorizedException(MESSAGES.TOKEN_REVOKED);
     }
 
     await this.cacheManager.set(
@@ -238,7 +239,7 @@ export class AuthService {
 
     const user = await this.usersService.findOneById(userId);
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException(MESSAGES.USER_NOT_FOUND);
     }
 
     const hashedPassword = await argon2.hash(resetPasswordRequestDto.password);
