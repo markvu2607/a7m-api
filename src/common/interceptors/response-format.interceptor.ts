@@ -10,24 +10,33 @@ import { Response as ExpressResponse } from 'express';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ResponseData } from '../interfaces/response-data.interface';
 import { METADATA_KEYS } from '../constants/metadata-key.constant';
 
-interface ResponseFormat<T> extends ResponseData<T> {
-  status: number;
-  message: string;
-}
+type ApiResponseError = {
+  error?: string;
+};
+
+type ApiResponseSuccess<T> = {
+  success: true;
+  data?: T;
+  metadata?: Record<string, unknown>;
+};
+
+type ApiResponse<T> = {
+  statusCode: number;
+  message: string | string[];
+} & (ApiResponseError | ApiResponseSuccess<T>);
 
 @Injectable()
 export class ResponseFormatInterceptor<T>
-  implements NestInterceptor<T, ResponseFormat<T>>
+  implements NestInterceptor<T, ApiResponse<T>>
 {
   constructor(private readonly reflector: Reflector) {}
 
   intercept(
     context: ExecutionContext,
     next: CallHandler,
-  ): Observable<ResponseFormat<T>> {
+  ): Observable<ApiResponse<T>> {
     const ctx = context.switchToHttp();
     const response = ctx.getResponse<ExpressResponse>();
     const statusCode: number = response.statusCode;
@@ -37,11 +46,12 @@ export class ResponseFormatInterceptor<T>
     );
 
     return next.handle().pipe(
-      map((data: ResponseData<T>) => {
-        const responseFormat: ResponseFormat<T> = {
-          status: statusCode || HttpStatus.OK,
-          message: message || '',
+      map((data: ApiResponse<T>) => {
+        const responseFormat: ApiResponse<T> = {
           ...data,
+          statusCode: statusCode || HttpStatus.OK,
+          message: message || '',
+          success: true,
         };
         return responseFormat;
       }),

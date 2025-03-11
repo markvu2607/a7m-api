@@ -24,6 +24,7 @@ import { LocalGuard } from './guards/local.guard';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
   @Public()
   @Post('register')
   @HttpCode(StatusCodes.CREATED)

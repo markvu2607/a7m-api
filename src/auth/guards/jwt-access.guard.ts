@@ -1,7 +1,8 @@
-import { METADATA_KEYS } from '@/common/constants/metadata-key.constant';
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
+
+import { METADATA_KEYS } from '@/common/constants/metadata-key.constant';
 
 const listOfIgnoreRoutes = [
   METADATA_KEYS.IS_PUBLIC_ROUTE,
