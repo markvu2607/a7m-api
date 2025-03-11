@@ -17,9 +17,6 @@ import { ResetPasswordRequestDto } from './dtos/requests/reset-password.request.
 import { LoginResponseDto } from './dtos/responses/login.response.dto';
 import { RefreshTokenResponseDto } from './dtos/responses/refresh-token.response.dto';
 import { RegisterResponseDto } from './dtos/responses/register.response.dto';
-import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
-import { JwtResetPasswordGuard } from './guards/jwt-reset-password.guard';
-import { JwtVerifyEmailGuard } from './guards/jwt-verify-email.guard';
 import { LocalGuard } from './guards/local.guard';
 
 // TODO: implement permission with role (casl)
@@ -57,14 +54,14 @@ export class AuthController {
   }
 
   @RefreshToken()
-  @UseGuards(JwtRefreshGuard)
   @Post('refresh-token')
   @HttpCode(StatusCodes.OK)
   @MessageResponse(MESSAGES.REFRESH_TOKEN_SUCCESS)
   async refreshToken(
+    @CurrentUser('jti') jti: string,
     @CurrentUser('sub') userId: string,
   ): Promise<ResponseData<RefreshTokenResponseDto>> {
-    const { data } = await this.authService.refreshToken(userId);
+    const { data } = await this.authService.refreshToken(jti, userId);
     const responseData = new RefreshTokenResponseDto(data);
     return {
       data: responseData,
@@ -74,13 +71,15 @@ export class AuthController {
   @Post('logout')
   @HttpCode(StatusCodes.OK)
   @MessageResponse(MESSAGES.LOGOUT_SUCCESS)
-  async logout(@CurrentUser('sub') userId: string) {
-    await this.authService.logout(userId);
+  async logout(
+    @CurrentUser('jti') jti: string,
+    @CurrentUser('sub') userId: string,
+  ) {
+    await this.authService.logout(jti, userId);
     return {};
   }
 
   @VerifyEmail()
-  @UseGuards(JwtVerifyEmailGuard)
   @Post('verify-email')
   @HttpCode(StatusCodes.OK)
   @MessageResponse(MESSAGES.VERIFY_EMAIL_SUCCESS)
@@ -102,7 +101,6 @@ export class AuthController {
   }
 
   @ResetPassword()
-  @UseGuards(JwtResetPasswordGuard)
   @Post('reset-password')
   @HttpCode(StatusCodes.OK)
   @MessageResponse(MESSAGES.RESET_PASSWORD_SUCCESS)

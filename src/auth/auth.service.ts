@@ -2,11 +2,9 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { InjectRepository } from '@nestjs/typeorm';
 import * as argon2 from 'argon2';
 import { Cache } from 'cache-manager';
 import ms, { StringValue } from 'ms';
-import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
 import { MailerService } from '@/mailer/mailer.service';
@@ -18,7 +16,6 @@ import { TOKEN_TYPES, TokenType } from './constants/token-types.constant';
 import { ForgotPasswordRequestDto } from './dtos/requests/forgot-password.request.dto';
 import { RegisterRequestDto } from './dtos/requests/register.request.dto';
 import { ResetPasswordRequestDto } from './dtos/requests/reset-password.request.dto';
-import { RefreshToken } from './entities/refresh-token.entity';
 
 type TokenPayload = { type: TokenType; sub: string } & Record<string, unknown>;
 
@@ -28,8 +25,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
-    @InjectRepository(RefreshToken)
-    private readonly refreshTokenRepository: Repository<RefreshToken>,
     private readonly mailerService: MailerService,
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
@@ -42,13 +37,10 @@ export class AuthService {
     const expiresIn = this.configService.get<StringValue>(
       `jwt.${tokenPayload.type}.expiresIn`,
     )!;
-    const token = this.jwtService.sign(
-      { jti: uuidv4(), ...tokenPayload },
-      {
-        secret: this.configService.get(`jwt.${tokenPayload.type}.secret`),
-        expiresIn,
-      },
-    );
+    const token = this.jwtService.sign(tokenPayload, {
+      secret: this.configService.get(`jwt.${tokenPayload.type}.secret`),
+      expiresIn,
+    });
 
     return { token, expiresIn: ms(expiresIn) / 1000 };
   }
@@ -71,22 +63,14 @@ export class AuthService {
     return user;
   }
 
-  async login(userId: string) {
+  login(userId: string) {
+    const jti = uuidv4();
     const tokenPayloads = [
-      { type: TOKEN_TYPES.ACCESS, sub: userId },
-      { type: TOKEN_TYPES.REFRESH, sub: userId },
+      { type: TOKEN_TYPES.ACCESS, sub: userId, jti },
+      { type: TOKEN_TYPES.REFRESH, sub: userId, jti },
     ];
     const [accessTokenData, refreshTokenData] =
       this.generateJwts(tokenPayloads);
-
-    await this.refreshTokenRepository.upsert(
-      {
-        userId,
-        token: refreshTokenData.token,
-        revoked: false,
-      },
-      ['userId'],
-    );
 
     return {
       data: {
@@ -114,22 +98,20 @@ export class AuthService {
     newUser.username = registerRequestDto.username;
     const savedUser = await this.usersService.save(newUser);
 
+    const jti = uuidv4();
     const tokenPayloads = [
-      { type: TOKEN_TYPES.ACCESS, sub: savedUser.id },
-      { type: TOKEN_TYPES.REFRESH, sub: savedUser.id },
+      { type: TOKEN_TYPES.ACCESS, sub: savedUser.id, jti },
+      { type: TOKEN_TYPES.REFRESH, sub: savedUser.id, jti },
     ];
     const [accessTokenData, refreshTokenData] =
       this.generateJwts(tokenPayloads);
 
-    await this.refreshTokenRepository.save({
-      token: refreshTokenData.token,
-      userId: savedUser.id,
-    });
-
+    const jtiVerifyEmail = uuidv4();
     const { token: verifyEmailToken } = this.generateJwt({
       type: TOKEN_TYPES.VERIFY_EMAIL,
       sub: savedUser.id,
       email: savedUser.email,
+      jti: jtiVerifyEmail,
     });
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.mailerService.sendVerificationEmail(savedUser.email, verifyEmailToken);
@@ -144,35 +126,30 @@ export class AuthService {
     };
   }
 
-  async refreshToken(userId: string) {
-    const refreshToken = await this.refreshTokenRepository.findOne({
-      where: {
-        userId,
-      },
-    });
-    if (!refreshToken) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
-    if (refreshToken.revoked) {
+  async refreshToken(oldJti: string, userId: string) {
+    const key = `blacklist-token:${userId}:${oldJti}`;
+    if (await this.cacheManager.get(key)) {
       throw new UnauthorizedException('Refresh token revoked');
     }
+
+    await this.cacheManager.set(
+      key,
+      true,
+      Number(ms(this.configService.get('jwt.refresh.expiresIn')!)),
+    );
 
     const user = await this.usersService.findOneById(userId);
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
 
+    const jti = uuidv4();
     const tokenPayloads = [
-      { type: TOKEN_TYPES.ACCESS, sub: userId },
-      { type: TOKEN_TYPES.REFRESH, sub: userId },
+      { type: TOKEN_TYPES.ACCESS, sub: userId, jti },
+      { type: TOKEN_TYPES.REFRESH, sub: userId, jti },
     ];
     const [accessTokenData, refreshTokenData] =
       this.generateJwts(tokenPayloads);
-
-    await this.refreshTokenRepository.update(refreshToken.id, {
-      token: refreshTokenData.token,
-      revoked: false,
-    });
 
     return {
       data: {
@@ -184,29 +161,26 @@ export class AuthService {
     };
   }
 
-  async logout(userId: string): Promise<void> {
-    const refreshToken = await this.refreshTokenRepository.findOne({
-      where: {
-        userId,
-      },
-    });
-    if (!refreshToken) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
-    if (refreshToken.revoked) {
-      throw new UnauthorizedException('Refresh token revoked');
-    }
-
-    await this.refreshTokenRepository.update(refreshToken.id, {
-      revoked: true,
-    });
+  async logout(jti: string, userId: string): Promise<void> {
+    const key = `blacklist-token:${userId}:${jti}`;
+    await this.cacheManager.set(
+      key,
+      true,
+      Number(ms(this.configService.get('jwt.refresh.expiresIn')!)),
+    );
   }
 
   async verifyEmail(jti: string, userId: string) {
-    const key = `verify-email:${userId}:${jti}`;
+    const key = `blacklist-token:${userId}:${jti}`;
     if (await this.cacheManager.get(key)) {
-      throw new UnauthorizedException('Email already verified');
+      throw new UnauthorizedException('Token already used');
     }
+
+    await this.cacheManager.set(
+      key,
+      true,
+      Number(ms(this.configService.get('jwt.verifyEmail.expiresIn')!)),
+    );
 
     const user = await this.usersService.findOneById(userId);
     if (!user) {
@@ -220,12 +194,6 @@ export class AuthService {
       ...user,
       isVerified: true,
     });
-
-    await this.cacheManager.set(
-      key,
-      'verified',
-      Number(ms(this.configService.get('jwt.verifyEmail.expiresIn')!)),
-    );
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.mailerService.sendWelcomeEmail(user.email);
@@ -241,10 +209,12 @@ export class AuthService {
       throw new UnauthorizedException('User not verified');
     }
 
+    const jti = uuidv4();
     const { token: resetPasswordToken } = this.generateJwt({
       type: TOKEN_TYPES.RESET_PASSWORD,
       sub: user.id,
       email: user.email,
+      jti,
     });
 
     await this.mailerService.sendPasswordResetEmail(email, resetPasswordToken);
@@ -255,10 +225,16 @@ export class AuthService {
     userId: string,
     resetPasswordRequestDto: ResetPasswordRequestDto,
   ) {
-    const key = `reset-password:${userId}:${jti}`;
+    const key = `blacklist-token:${userId}:${jti}`;
     if (await this.cacheManager.get(key)) {
       throw new UnauthorizedException('Reset password token already used');
     }
+
+    await this.cacheManager.set(
+      key,
+      true,
+      Number(ms(this.configService.get('jwt.resetPassword.expiresIn')!)),
+    );
 
     const user = await this.usersService.findOneById(userId);
     if (!user) {
@@ -271,11 +247,5 @@ export class AuthService {
       ...user,
       hashedPassword,
     });
-
-    await this.cacheManager.set(
-      key,
-      'reset',
-      Number(ms(this.configService.get('jwt.resetPassword.expiresIn')!)),
-    );
   }
 }
