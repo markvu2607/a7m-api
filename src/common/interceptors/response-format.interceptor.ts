@@ -17,7 +17,6 @@ type ApiResponseError = {
 };
 
 type ApiResponseSuccess<T> = {
-  success: true;
   data?: T;
   metadata?: Record<string, unknown>;
 };
@@ -51,7 +50,6 @@ export class ResponseFormatInterceptor<T>
           ...data,
           statusCode: statusCode || HttpStatus.OK,
           message: message || '',
-          success: true,
         };
         return responseFormat;
       }),
