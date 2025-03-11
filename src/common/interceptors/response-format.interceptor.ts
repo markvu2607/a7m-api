@@ -13,10 +13,12 @@ import { map } from 'rxjs/operators';
 import { METADATA_KEYS } from '../constants/metadata-key.constant';
 
 type ApiResponseError = {
+  success?: false;
   error?: string;
 };
 
 type ApiResponseSuccess<T> = {
+  success: true;
   data?: T;
   metadata?: Record<string, unknown>;
 };
@@ -50,6 +52,7 @@ export class ResponseFormatInterceptor<T>
           ...data,
           statusCode: statusCode || HttpStatus.OK,
           message: message || '',
+          success: true,
         };
         return responseFormat;
       }),
