@@ -1,5 +1,10 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
@@ -88,7 +93,7 @@ export class AuthService {
       registerRequestDto.email,
     );
     if (user) {
-      throw new UnauthorizedException(MESSAGES.USER_ALREADY_EXISTS);
+      throw new BadRequestException(MESSAGES.USER_ALREADY_EXISTS);
     }
 
     const hashedPassword = await argon2.hash(registerRequestDto.password);
