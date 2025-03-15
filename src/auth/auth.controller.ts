@@ -1,5 +1,11 @@
-import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
-import { StatusCodes } from 'http-status-codes';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Post,
+  UseGuards,
+  HttpStatus,
+} from '@nestjs/common';
 
 import { MESSAGES } from '@/common/constants/message.constant';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
@@ -14,9 +20,7 @@ import { VerifyEmail } from './decorators/verify-email.decorator';
 import { ForgotPasswordRequestDto } from './dtos/requests/forgot-password.request.dto';
 import { RegisterRequestDto } from './dtos/requests/register.request.dto';
 import { ResetPasswordRequestDto } from './dtos/requests/reset-password.request.dto';
-import { LoginResponseDto } from './dtos/responses/login.response.dto';
-import { RefreshTokenResponseDto } from './dtos/responses/refresh-token.response.dto';
-import { RegisterResponseDto } from './dtos/responses/register.response.dto';
+import { TokenResponseDto } from './dtos/responses/token.response.dto';
 import { LocalGuard } from './guards/local.guard';
 
 // TODO: implement permission with role (casl)
@@ -27,12 +31,10 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  @HttpCode(StatusCodes.CREATED)
+  @HttpCode(HttpStatus.CREATED)
   @MessageResponse(MESSAGES.REGISTER_SUCCESS)
-  @Serialize(RegisterResponseDto)
-  async register(
-    @Body() registerDto: RegisterRequestDto,
-  ): Promise<RegisterResponseDto> {
+  @Serialize(TokenResponseDto)
+  async register(@Body() registerDto: RegisterRequestDto) {
     const { data } = await this.authService.register(registerDto);
     return {
       data,
@@ -42,10 +44,10 @@ export class AuthController {
   @Public()
   @UseGuards(LocalGuard)
   @Post('login')
-  @HttpCode(StatusCodes.OK)
+  @HttpCode(HttpStatus.OK)
   @MessageResponse(MESSAGES.LOGIN_SUCCESS)
-  @Serialize(LoginResponseDto)
-  login(@CurrentUser('sub') userId: string): LoginResponseDto {
+  @Serialize(TokenResponseDto)
+  login(@CurrentUser('sub') userId: string) {
     const { data } = this.authService.login(userId);
     return {
       data,
@@ -54,13 +56,13 @@ export class AuthController {
 
   @RefreshToken()
   @Post('refresh-token')
-  @HttpCode(StatusCodes.OK)
+  @HttpCode(HttpStatus.OK)
   @MessageResponse(MESSAGES.REFRESH_TOKEN_SUCCESS)
-  @Serialize(RefreshTokenResponseDto)
+  @Serialize(TokenResponseDto)
   async refreshToken(
     @CurrentUser('jti') jti: string,
     @CurrentUser('sub') userId: string,
-  ): Promise<RefreshTokenResponseDto> {
+  ) {
     const { data } = await this.authService.refreshToken(jti, userId);
     return {
       data,
@@ -68,7 +70,7 @@ export class AuthController {
   }
 
   @Post('logout')
-  @HttpCode(StatusCodes.OK)
+  @HttpCode(HttpStatus.OK)
   @MessageResponse(MESSAGES.LOGOUT_SUCCESS)
   async logout(
     @CurrentUser('jti') jti: string,
@@ -80,7 +82,7 @@ export class AuthController {
 
   @VerifyEmail()
   @Post('verify-email')
-  @HttpCode(StatusCodes.OK)
+  @HttpCode(HttpStatus.OK)
   @MessageResponse(MESSAGES.VERIFY_EMAIL_SUCCESS)
   async verifyEmail(
     @CurrentUser('jti') jti: string,
@@ -92,7 +94,7 @@ export class AuthController {
 
   @Public()
   @Post('forgot-password')
-  @HttpCode(StatusCodes.OK)
+  @HttpCode(HttpStatus.OK)
   @MessageResponse(MESSAGES.FORGOT_PASSWORD_SUCCESS)
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordRequestDto) {
     await this.authService.forgotPassword(forgotPasswordDto);
@@ -101,7 +103,7 @@ export class AuthController {
 
   @ResetPassword()
   @Post('reset-password')
-  @HttpCode(StatusCodes.OK)
+  @HttpCode(HttpStatus.OK)
   @MessageResponse(MESSAGES.RESET_PASSWORD_SUCCESS)
   async resetPassword(
     @CurrentUser('jti') jti: string,

@@ -8,22 +8,30 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 
-export function Serialize(dto: ClassConstructor<any>) {
+interface Response {
+  data?: unknown;
+  metadata?: Record<string, unknown>;
+}
+
+export function Serialize<T>(dto: ClassConstructor<T>) {
   return UseInterceptors(new SerializeInterceptor(dto));
 }
 
 export class SerializeInterceptor implements NestInterceptor {
-  constructor(private dto: any) {}
+  constructor(private dto: ClassConstructor<any>) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map((data) =>
-        plainToInstance(this.dto, data, {
-          excludeExtraneousValues: true,
-          enableImplicitConversion: true,
-          exposeDefaultValues: true,
-        }),
-      ),
+      map((data: Response): Response => {
+        return {
+          ...data,
+          data: plainToInstance(this.dto, data.data, {
+            excludeExtraneousValues: true,
+            enableImplicitConversion: true,
+            exposeUnsetFields: false,
+          }),
+        };
+      }),
     );
   }
 }

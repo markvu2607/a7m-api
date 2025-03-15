@@ -1,21 +1,21 @@
-import { Controller, Get, HttpCode } from '@nestjs/common';
-import { StatusCodes } from 'http-status-codes';
+import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 
 import { MESSAGES } from '@/common/constants/message.constant';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { MessageResponse } from '@/common/decorators/message-response.decorator';
 import { Serialize } from '@/common/interceptors/serilize.interceptor';
 
-import { GetMeResponseDto } from './dtos/responses/get-me.response.dto';
+import { UserResponseDto } from './dtos/responses/user.response.dto';
 import { UsersService } from './users.service';
+
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('me')
-  @HttpCode(StatusCodes.OK)
+  @HttpCode(HttpStatus.OK)
   @MessageResponse(MESSAGES.GET_ME_SUCCESS)
-  @Serialize(GetMeResponseDto)
+  @Serialize(UserResponseDto)
   async getMe(@CurrentUser('sub') userId: string) {
     const user = await this.usersService.findOneById(userId);
     return {

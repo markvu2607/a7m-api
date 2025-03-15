@@ -14,7 +14,6 @@ import { ProblemsModule } from './problems/problems.module';
 import { SolutionsModule } from './solutions/solutions.module';
 import { SubmissionsModule } from './submissions/submissions.module';
 import { TagsModule } from './tags/tags.module';
-import { TestcasesModule } from './testcases/testcases.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -44,7 +43,6 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     ProblemsModule,
     SolutionsModule,
-    TestcasesModule,
     TagsModule,
     SubmissionsModule,
   ],

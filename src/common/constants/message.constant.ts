@@ -13,4 +13,9 @@ export const MESSAGES = {
   USER_NOT_FOUND: 'User not found!',
   USER_ALREADY_VERIFIED: 'User already verified!',
   USER_NOT_VERIFIED: 'User not verified!',
+  CREATE_PROBLEM_SUCCESS: 'Create problem successfully!',
+  PROBLEM_ALREADY_EXISTS: 'Problem already exists!',
+  PROBLEM_NOT_FOUND: 'Problem not found!',
+  GET_PROBLEM_SUCCESS: 'Get problem successfully!',
+  GET_ALL_PROBLEMS_SUCCESS: 'Get all problems successfully!',
 } as const;

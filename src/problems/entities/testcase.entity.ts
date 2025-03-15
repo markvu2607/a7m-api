@@ -2,9 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+import { Problem } from './problem.entity';
 
 @Entity('testcases')
 export class Testcase {
@@ -17,9 +20,15 @@ export class Testcase {
   @Column()
   output: string;
 
+  @Column({ default: false })
+  isSample: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToOne(() => Problem, (problem) => problem.testcases)
+  problem: Problem;
 }
