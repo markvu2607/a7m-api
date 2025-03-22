@@ -23,13 +23,17 @@ export class ProblemsService {
 
   async getProblemBySlug(slug: string) {
     const problem = await this.problemsRepository.findOne({
-      where: { slug },
+      where: {
+        slug,
+        testcases: {
+          isSample: true,
+        },
+      },
     });
 
     if (!problem) {
       throw new NotFoundException(MESSAGES.PROBLEM_NOT_FOUND);
     }
-
     return { data: problem };
   }
 
@@ -38,16 +42,30 @@ export class ProblemsService {
       title: data.title,
       description: data.description,
       difficulty: data.difficulty,
+      templateRunning: data.templateRunning,
+      solution: data.solution,
+      defaultCode: data.defaultCode,
       slug: slugify(data.title, { lower: true }),
       index: data.index,
       testcases: data.testcases.map((testcase) => ({
         input: testcase.input,
-        output: testcase.output,
         isSample: testcase.isSample,
       })),
     });
 
     const savedProblem = await this.problemsRepository.save(problem);
     return { data: savedProblem };
+  }
+
+  async getProblemById(id: string) {
+    const problem = await this.problemsRepository.findOne({
+      where: { id },
+    });
+
+    if (!problem) {
+      throw new NotFoundException(MESSAGES.PROBLEM_NOT_FOUND);
+    }
+
+    return { data: problem };
   }
 }

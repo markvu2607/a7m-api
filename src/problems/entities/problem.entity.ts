@@ -27,6 +27,15 @@ export class Problem {
   @Column()
   description: string;
 
+  @Column()
+  defaultCode: string;
+
+  @Column()
+  templateRunning: string;
+
+  @Column()
+  solution: string;
+
   @Column({ type: 'enum', enum: Difficulty })
   difficulty: Difficulty;
 

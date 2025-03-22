@@ -17,9 +17,6 @@ export class Testcase {
   @Column()
   input: string;
 
-  @Column()
-  output: string;
-
   @Column({ default: false })
   isSample: boolean;
 

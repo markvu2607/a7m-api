@@ -5,10 +5,6 @@ export class CreateTestcaseRequestDto {
   @IsNotEmpty()
   input: string;
 
-  @IsString()
-  @IsNotEmpty()
-  output: string;
-
   @IsBoolean()
   @IsNotEmpty()
   isSample: boolean;

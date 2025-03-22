@@ -15,6 +15,7 @@ import { SolutionsModule } from './solutions/solutions.module';
 import { SubmissionsModule } from './submissions/submissions.module';
 import { TagsModule } from './tags/tags.module';
 import { UsersModule } from './users/users.module';
+import { CodingModule } from './coding/coding.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { UsersModule } from './users/users.module';
     SolutionsModule,
     TagsModule,
     SubmissionsModule,
+    CodingModule,
   ],
   controllers: [AppController],
   providers: [

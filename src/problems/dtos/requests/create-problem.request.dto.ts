@@ -25,6 +25,18 @@ export class CreateProblemRequestDto {
   @IsNotEmpty()
   difficulty: Difficulty;
 
+  @IsString()
+  @IsNotEmpty()
+  templateRunning: string;
+
+  @IsString()
+  @IsNotEmpty()
+  solution: string;
+
+  @IsString()
+  @IsNotEmpty()
+  defaultCode: string;
+
   @IsArray()
   @IsNotEmpty()
   testcases: CreateTestcaseRequestDto[];

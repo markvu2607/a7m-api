@@ -43,6 +43,9 @@ type AppConfig = {
     };
     defaultFrom: string;
   };
+  judge0: {
+    url: string;
+  };
 };
 
 export default (): AppConfig => ({
@@ -87,5 +90,8 @@ export default (): AppConfig => ({
       password: process.env.MAIL_AUTH_PASSWORD || 'test',
     },
     defaultFrom: process.env.MAIL_DEFAULT_FROM || 'noreply@a7m.dev',
+  },
+  judge0: {
+    url: process.env.JUDGE0_URL || 'http://localhost:2358/',
   },
 });

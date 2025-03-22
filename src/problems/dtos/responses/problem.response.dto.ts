@@ -1,19 +1,7 @@
 import { Expose } from 'class-transformer';
+
 import { Difficulty } from '../../enums/difficulty.enum';
-
-export class TestcaseResponseDto {
-  @Expose()
-  id: string;
-
-  @Expose()
-  input: string;
-
-  @Expose()
-  output: string;
-
-  @Expose()
-  isSample: boolean;
-}
+import { TestcaseResponseDto } from './testcase.response.dto';
 
 export class ProblemResponseDto {
   @Expose()
@@ -30,6 +18,9 @@ export class ProblemResponseDto {
 
   @Expose()
   description: string;
+
+  @Expose()
+  defaultCode: string;
 
   @Expose()
   difficulty: Difficulty;
