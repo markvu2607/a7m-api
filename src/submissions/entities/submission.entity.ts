@@ -27,7 +27,13 @@ export class Submission {
   language: string;
 
   @Column({ nullable: true })
-  testcaseId: string;
+  testcase: string;
+
+  @Column({ nullable: true })
+  output: string;
+
+  @Column({ nullable: true })
+  expectedOutput: string;
 
   @CreateDateColumn()
   createdAt: Date;

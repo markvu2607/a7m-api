@@ -69,6 +69,7 @@ export class CodingService {
     const results =
       await this.judge0Service.getSubmissionBatchResult(submissionTokens);
 
+    // TODO: should return submission object instead of array of custom object
     return {
       data: results.submissions.map((submission) => ({
         status: submission.status.description,
@@ -79,7 +80,14 @@ export class CodingService {
     };
   }
 
-  async submitCode(userId: string, submitCodeDto: SubmitCodeRequestDto) {
+  async submitCode(
+    userId: string,
+    submitCodeDto: SubmitCodeRequestDto,
+  ): Promise<{
+    data: {
+      submissionId: string;
+    };
+  }> {
     const { problemSlug, code, language } = submitCodeDto;
     const languageId = this.judge0Service.getLanguageId(language);
 
@@ -139,22 +147,15 @@ export class CodingService {
       code,
       language,
       status: error ? error.userResults.status.description : 'Accepted',
-      testcaseId: error?.testcase.id,
+      testcase: JSON.stringify(error?.testcase.input),
+      output: error?.userResults.stdout ?? undefined,
+      expectedOutput: error?.systemResults.stdout ?? undefined,
     });
 
     return {
-      data: !error
-        ? {
-            status: 'Accepted',
-            code: submission.code,
-            language: submission.language,
-          }
-        : {
-            status: error.userResults.status.description,
-            testcase: error.testcase,
-            output: error.userResults.stdout,
-            expectedOutput: error.systemResults.stdout,
-          },
+      data: {
+        submissionId: submission.id,
+      },
     };
   }
 }

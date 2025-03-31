@@ -18,4 +18,10 @@ export const MESSAGES = {
   PROBLEM_NOT_FOUND: 'Problem not found!',
   GET_PROBLEM_SUCCESS: 'Get problem successfully!',
   GET_ALL_PROBLEMS_SUCCESS: 'Get all problems successfully!',
+  CODE_SUBMITTED_SUCCESS: 'Code submitted successfully!',
+  CODE_RUN_SUCCESS: 'Code run successfully!',
+  GET_SUBMISSIONS_SUCCESS: 'Get submissions successfully!',
+  GET_SUBMISSION_SUCCESS: 'Get submission successfully!',
+  SUBMISSION_NOT_FOUND: 'Submission not found!',
+  SUBMISSION_NOT_ALLOWED: 'Submission not allowed!',
 } as const;

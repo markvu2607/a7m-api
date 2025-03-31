@@ -11,6 +11,7 @@ import { Judge0Service } from './judge0.service';
 @Module({
   imports: [HttpModule, ProblemsModule, SubmissionsModule],
   controllers: [CodingController],
+  // TODO: Separate judge0 to another module
   providers: [CodingService, Judge0Service],
 })
 export class CodingModule {}
