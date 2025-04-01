@@ -1,0 +1,148 @@
+---
+description: This rule provides comprehensive guidelines for TypeScript and NestJS development. Apply this rule when developing, reviewing, or refactoring NestJS code in this project. It should be used when implementing new features, fixing bugs, creating new modules, or when dealing with TypeScript code organization and structure in the NestJS context. The rule ensures consistent code style, proper use of NestJS patterns, and adherence to TypeScript best practices throughout the codebase.
+globs:
+alwaysApply: false
+---
+
+# NestJS Development Standards
+
+## Critical Rules
+
+- Use English for all code and documentation
+- Structure the project following NestJS modular architecture:
+  - Core module for filters, middlewares, guards, interceptors
+  - Feature modules for domain-specific functionality
+  - Shared module for common utilities and services
+- Follow TypeScript naming conventions:
+  - PascalCase for classes, interfaces, types, enums, decorators
+  - camelCase for variables, functions, methods, properties
+  - kebab-case for file and directory names
+  - UPPERCASE for constants and environment variables
+- Always declare explicit types; avoid `any` where possible
+- Validate DTOs with class-validator decorators
+- Keep functions small (< 20 lines) and focused on a single responsibility
+- Use dependency injection for all services
+- Follow SOLID principles in class design
+- Write comprehensive tests for controllers and services
+- Document public APIs with JSDoc comments
+- Use early returns to avoid deep nesting
+- Encapsulate business logic in service classes
+- Handle exceptions properly with NestJS filters
+- Prefer composition over inheritance
+- Use TypeORM/MikroORM entities for data persistence
+- Maintain one export per file rule
+- Organize application into modules by domain/feature
+- Apply CQRS pattern for complex operations
+
+## Examples
+
+<example>
+// Good NestJS controller example
+import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UsersService } from './users.service';
+import { User } from './entities/user.entity';
+
+@Controller('users')
+export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
+
+  @Post()
+  async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
+    return this.usersService.create(createUserDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  async findUser(@Param('id') id: string): Promise<User> {
+    return this.usersService.findById(id);
+  }
+}
+
+// Good NestJS service example
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateUserDto } from './dto/create-user.dto';
+import { User } from './entities/user.entity';
+
+@Injectable()
+export class UsersService {
+  constructor(
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+  ) {}
+
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const user = this.usersRepository.create(createUserDto);
+    return this.usersRepository.save(user);
+  }
+
+  async findById(id: string): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    return user;
+  }
+}
+
+// Good DTO example with validation
+import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+
+export class CreateUserDto {
+  @IsNotEmpty()
+  @MinLength(2)
+  readonly name: string;
+
+  @IsEmail()
+  readonly email: string;
+
+  @IsNotEmpty()
+  @MinLength(8)
+  readonly password: string;
+}
+</example>
+
+<example type="invalid">
+// Bad: Mixing responsibilities in controller
+@Controller('users')
+export class UsersController {
+  constructor(private readonly dbConnection: Connection) {}
+
+  @Post()
+  async createUser(@Body() body: any) {
+    // No DTO validation
+    // Business logic in controller
+    const user = new User();
+    user.name = body.name;
+    user.email = body.email;
+    user.password = await bcrypt.hash(body.password, 10);
+
+    const userRepository = this.dbConnection.getRepository(User);
+    await userRepository.save(user);
+
+    return user;
+  }
+}
+
+// Bad: Using any, no proper error handling
+@Injectable()
+export class BadService {
+  doSomething(data: any): any {
+    // No type safety
+    // No error handling
+    return data.process();
+  }
+}
+
+// Bad: No validation, improper naming
+export class userDto {
+  name: string;
+  e_mail: string; // Inconsistent naming
+  pwd: string; // Abbreviation
+}
+</example>
