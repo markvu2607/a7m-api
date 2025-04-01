@@ -8,7 +8,7 @@ A7M API follows a modular architecture based on NestJS principles, organized aro
 
 ### Module-Based Structure
 
-- Each domain feature is encapsulated in its own module (users, auth, problems, solutions, submissions)
+- Each domain feature is encapsulated in its own module (users, auth, problems, solutions, submissions, coding)
 - Modules contain controllers, services, entities, DTOs, and related components
 - Promotes high cohesion and low coupling
 
@@ -36,6 +36,12 @@ A7M API follows a modular architecture based on NestJS principles, organized aro
 - Role-based access control for secured endpoints
 - Custom decorators for clean controller implementation
 
+### Service Adapter Pattern
+
+- External services are wrapped in adapter services (Judge0Service)
+- Core business logic interacts with adapters rather than directly with external APIs
+- Enables easier switching of external services and simplified testing
+
 ## Component Relationships
 
 ### Core Flow
@@ -45,8 +51,18 @@ A7M API follows a modular architecture based on NestJS principles, organized aro
 3. DTOs validate and transform input data
 4. Controller delegates to service layer
 5. Services implement business logic
-6. Repositories handle data persistence
+6. Repositories handle data persistence or external services are called
 7. Response is transformed and returned
+
+### Code Execution Flow
+
+1. User submits code to the coding controller
+2. CodingService processes the submission
+3. Judge0Service sends code to the Judge0 API
+4. System solution is executed to generate expected outputs
+5. User solution is executed and compared against expected outputs
+6. Results are recorded in the submission repository
+7. Formatted response is returned to the user
 
 ### Cross-Cutting Concerns
 
@@ -54,6 +70,7 @@ A7M API follows a modular architecture based on NestJS principles, organized aro
 - Interceptors manage request/response transformations
 - Pipes validate and transform input data
 - Middleware handles common processing tasks
+- Cache manager provides Redis-based caching capabilities
 
 ## Data Model
 
@@ -62,11 +79,13 @@ The system is built around these key entities:
 - Users: Account information and authentication
 - Problems: Coding challenges with descriptions, constraints, and test cases
 - Solutions: Official solutions to problems
-- Submissions: User attempts at solving problems
+- Submissions: User attempts at solving problems with execution results
 - Tags: Categorization system for problems
+- Testcases: Input/output pairs for validating solutions
 
 ## Integration Points
 
 - S3 service for file storage
 - Email service for notifications
-- External judging system (likely through the coding module)
+- Judge0 API for code execution and evaluation
+- Redis for caching and token blacklisting

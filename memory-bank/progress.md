@@ -2,47 +2,65 @@
 
 ## What Works
 
-Based on the initial review of the codebase, the following features appear to be implemented:
+Based on the review of the codebase, the following features have been implemented and appear to be functional:
 
-- Core NestJS application structure
-- Module organization for main features
-- Authentication system with JWT
-- User management
-- Problem definition and management
-- Solution management
-- Submission handling
-- Tag system for categorization
+- Core NestJS application structure and module organization
+- Authentication system with JWT including login, registration, and password reset
+- User management with profile operations
+- Problem definition and management with testcase support
+- Solution management for maintaining official solutions
+- Submission recording and retrieval
+- Tag system for problem categorization
 - S3 integration for file storage
-- Email service integration
+- Email service integration for notifications
+- Code execution and evaluation through Judge0 integration:
+  - Running code against test cases
+  - Submitting code for evaluation
+  - Comparing user output with expected output
+  - Recording detailed submission results
 
 ## What's In Progress
 
-Without deeper code analysis, it's difficult to determine what's actively in progress, but the coding module appears to be a recent addition and may be under active development.
+The coding module appears to be a recent addition and is still under active development. Specific areas in progress include:
+
+- Enhanced language support beyond Python
+- Optimization of code execution workflow
+- Integration of more comprehensive testing strategies
+- Error handling improvements for edge cases in code execution
 
 ## What's Left To Build
 
-Without detailed requirements, it's challenging to identify specific missing features. However, common features for a coding platform that might need implementation:
+Based on the codebase review and common requirements for coding platforms, these features may need implementation:
 
-- Advanced search and filtering capabilities
-- Analytics and statistics
-- Leaderboards or rankings
-- Batch operations for administrators
-- Integration with additional external services
-- Enhanced notification systems
-- Performance optimizations for scaling
+- Advanced search and filtering capabilities for problems and submissions
+- Analytics and statistics for user performance and problem difficulty
+- Leaderboards or rankings based on user performance
+- Support for contests or timed coding challenges
+- Batch operations for administrators to manage problems and users
+- Integration with additional external services (e.g., plagiarism detection)
+- Enhanced notification systems for submission results
+- Performance optimizations for scaling under load
+- Custom testcase creation by users during problem-solving
 
 ## Known Issues
 
-No specific issues have been identified yet. Future updates to this document will track known bugs, technical debt, and limitations.
+- The app.module.ts has a TODO comment regarding TypeORM synchronize setting for different environments
+- The coding module may need refinement for handling errors and timeouts in code execution
+- The current implementation seems focused on Python with the createPythonTemplate function, suggesting limited multi-language support
 
 ## Current Status Summary
 
-The A7M API appears to be a functional NestJS backend for a coding platform with core features implemented. More detailed analysis is needed to determine the completeness and quality of individual modules.
+The A7M API is a functional NestJS backend for a coding platform with core features implemented. The recent development of the coding module with Judge0 integration has added essential code execution capabilities. The system can now handle the complete workflow from problem definition to code submission and evaluation.
 
 ## Next Milestone
 
-As this is the initial memory bank creation, specific milestones are not yet documented. Future updates will track upcoming milestones and their criteria.
+The next milestone appears to be enhancing the coding module with:
+
+1. Support for multiple programming languages
+2. Performance optimizations for code execution
+3. More robust error handling
+4. Integration with the front-end application
 
 ## Testing Status
 
-The project has Jest configured for both unit and E2E testing. A more detailed review of test coverage is needed to assess the testing status accurately.
+The project has Jest configured for both unit and E2E testing. While the test configuration is in place, additional tests may be needed for the recently added coding module to ensure proper functionality and error handling for code execution and evaluation.

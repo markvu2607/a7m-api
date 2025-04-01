@@ -12,8 +12,8 @@
 
 - **PostgreSQL**: Primary relational database
 - **TypeORM**: Object-Relational Mapper for database interactions
-- **S3-compatible storage**: For file management (likely AWS S3 or compatible alternative)
-- **Redis**: For caching via @nestjs/cache-manager and @keyv/redis
+- **S3-compatible storage**: For file storage (likely AWS S3 or compatible alternative)
+- **Redis**: For caching via @nestjs/cache-manager and @keyv/redis, also used for token blacklisting
 
 ### Authentication & Security
 
@@ -26,6 +26,14 @@
 
 - **NestJS Mailer**: Email service integration
 - **Nodemailer**: Underlying email sending capability
+- **Axios**: HTTP client for external API communication
+- **RxJS**: Reactive programming library for handling asynchronous operations
+
+### Code Execution
+
+- **Judge0**: External API for secure code execution in various languages
+- **HTTP-based integration**: RESTful API calls to Judge0 service
+- **Retry mechanism**: For handling in-progress code execution
 
 ### Testing
 
@@ -43,7 +51,8 @@
 
 - Email service (via NestJS Mailer/Nodemailer)
 - S3-compatible storage service
-- Potentially external code execution/judging system
+- Judge0 API for code execution (https://judge0.com/)
+- Redis service for caching and token management
 
 ## Development Setup
 
@@ -54,6 +63,7 @@
 - PostgreSQL database
 - Redis server
 - S3-compatible storage account
+- Judge0 API access or self-hosted instance
 
 ### Environment Configuration
 
@@ -64,6 +74,7 @@ Environment variables are managed through .env files and @nestjs/config:
 - Email service credentials
 - S3 credentials and configuration
 - Redis configuration
+- Judge0 API endpoint and credentials
 
 ### Local Development Commands
 
@@ -97,3 +108,4 @@ The application is designed to be deployed in various environments:
 - Stateless architecture
 - PostgreSQL as the database
 - TypeScript as the development language
+- Required external services: PostgreSQL, Redis, S3, Judge0

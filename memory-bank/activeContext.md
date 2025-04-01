@@ -2,48 +2,59 @@
 
 ## Current Focus
 
-The A7M API project appears to be a NestJS-based backend for a coding platform or online judge system. Based on the directory structure and package dependencies, the system seems to be under active development with core modules for problems, solutions, submissions, users, and authentication already in place.
+The A7M API project is a NestJS-based backend for a coding platform or online judge system. The current focus is on the coding execution and evaluation functionality through the recently developed coding module, which integrates with Judge0 for code execution.
 
 ## Recent Changes
 
-As this is the initial memory bank creation, specific recent changes are not yet documented. Future updates to this file will track significant changes to the codebase.
+- Implementation of the coding module with Judge0 integration
+- Development of code execution endpoints for running and submitting code
+- Integration of submission processing with problem management
+- Implementation of testcase handling and result validation
 
 ## Current State
 
 The project has several key modules implemented:
 
 - Authentication system with JWT
-- User management
-- Problems management
+- User management with password reset functionality
+- Problems management with testcase support
 - Solutions management
-- Submissions processing
-- Tag system for categorization
+- Submissions processing and tracking
+- Tag system for problem categorization
 - S3 integration for file storage
 - Email service integration
-- A coding module that likely handles code execution or evaluation
+- Coding module with Judge0 integration for code execution and evaluation
 
 ## Active Decisions
 
-As this is the initial memory bank creation, specific active decisions are not yet documented. Future updates will track key decision points and their rationales.
+- Using Judge0 as the code execution engine
+- Implementing a two-phase code evaluation process:
+  1. Run system solution to generate expected outputs
+  2. Run user code and compare against expected outputs
+- Testing solutions against multiple testcases and stopping at the first failure
+- Storing detailed submission information for future reference
 
 ## Next Steps
 
-Initial proposed next steps (to be refined based on actual priorities):
-
-1. Review the codebase in more detail to understand implementation details
-2. Identify any missing features or incomplete modules
-3. Evaluate test coverage and identify areas needing additional tests
-4. Document API endpoints and their purposes
-5. Review error handling and validation mechanisms
+1. Enhance the coding module with more language support
+2. Implement batch submission processing for efficiency
+3. Add performance metrics and execution time limits
+4. Develop comprehensive error handling for code execution edge cases
+5. Implement caching strategies for common operations
+6. Add support for custom test cases submitted by users
 
 ## Open Questions
 
 - What is the current deployment strategy?
-- How is code execution/judging implemented?
-- What is the authentication flow in detail?
-- Are there any performance bottlenecks identified?
+- How can the code execution be optimized for better performance?
+- Are there any security considerations for the code execution environment?
+- How should the system handle very large testcases or outputs?
 - What is the state of the front-end application that consumes this API?
 
 ## Current Challenges
 
-As this is the initial memory bank creation, specific current challenges are not yet documented. Future updates will track challenges faced and their potential solutions.
+- Ensuring secure execution of user-submitted code
+- Handling edge cases in different programming languages
+- Managing execution timeouts and resource limits
+- Scaling the code execution service efficiently
+- Providing meaningful feedback for different types of code failures
