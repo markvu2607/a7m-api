@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-A7M API follows a modular architecture based on NestJS principles, organized around domain-driven features with clear separation of concerns.
+A7M API follows a modular architecture based on NestJS principles, organized around domain-driven features with clear separation of concerns. The architecture adheres to the standards defined in `.cursor/rules/nestjs-rules/rule-nestjs-standards-agent.mdc`.
 
 ## Core Design Patterns
 
@@ -41,6 +41,17 @@ A7M API follows a modular architecture based on NestJS principles, organized aro
 - External services are wrapped in adapter services (Judge0Service)
 - Core business logic interacts with adapters rather than directly with external APIs
 - Enables easier switching of external services and simplified testing
+
+## NestJS Standards
+
+The codebase follows standardized practices for NestJS development:
+
+- Clean, maintainable TypeScript code
+- Clear separation of responsibilities
+- Consistent naming conventions and file organization
+- Proper error handling and validation
+- Comprehensive testing strategies
+- Complete documentation for public APIs
 
 ## Component Relationships
 

@@ -5,6 +5,7 @@
 ### Framework
 
 - **NestJS**: Primary framework providing the architectural foundation
+  - Following standardized NestJS patterns as defined in `.cursor/rules/nestjs-rules/rule-nestjs-standards-agent.mdc`
 - **TypeScript**: Programming language providing type safety and modern features
 - **Express**: Underlying HTTP server (via NestJS platform-express)
 
@@ -46,6 +47,16 @@
 - **Prettier**: Code formatting
 - **SWC**: Fast TypeScript/JavaScript compiler for development
 - **pnpm**: Package manager
+
+## Coding Standards
+
+- **NestJS Standards**: Documented in `.cursor/rules/nestjs-rules/rule-nestjs-standards-agent.mdc`
+  - TypeScript best practices
+  - NestJS architectural patterns
+  - Naming conventions
+  - Function and class organization
+  - Error handling strategies
+  - Testing methodologies
 
 ## Third-Party Integrations
 

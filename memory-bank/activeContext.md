@@ -10,6 +10,7 @@ The A7M API project is a NestJS-based backend for a coding platform or online ju
 - Development of code execution endpoints for running and submitting code
 - Integration of submission processing with problem management
 - Implementation of testcase handling and result validation
+- Creation of NestJS standards rule to maintain consistent code quality and architecture
 
 ## Current State
 
@@ -33,6 +34,7 @@ The project has several key modules implemented:
   2. Run user code and compare against expected outputs
 - Testing solutions against multiple testcases and stopping at the first failure
 - Storing detailed submission information for future reference
+- Adopting standardized NestJS development practices as documented in the `.cursor/rules/nestjs-rules/rule-nestjs-standards-agent.mdc` file
 
 ## Next Steps
 
@@ -42,6 +44,7 @@ The project has several key modules implemented:
 4. Develop comprehensive error handling for code execution edge cases
 5. Implement caching strategies for common operations
 6. Add support for custom test cases submitted by users
+7. Ensure all code follows the established NestJS standards
 
 ## Open Questions
 
@@ -58,3 +61,4 @@ The project has several key modules implemented:
 - Managing execution timeouts and resource limits
 - Scaling the code execution service efficiently
 - Providing meaningful feedback for different types of code failures
+- Maintaining consistency across the codebase as it grows

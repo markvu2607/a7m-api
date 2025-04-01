@@ -27,6 +27,7 @@ The coding module appears to be a recent addition and is still under active deve
 - Optimization of code execution workflow
 - Integration of more comprehensive testing strategies
 - Error handling improvements for edge cases in code execution
+- Ensuring codebase follows established NestJS standards
 
 ## What's Left To Build
 
@@ -41,16 +42,18 @@ Based on the codebase review and common requirements for coding platforms, these
 - Enhanced notification systems for submission results
 - Performance optimizations for scaling under load
 - Custom testcase creation by users during problem-solving
+- Code quality improvements to fully adhere to NestJS standards
 
 ## Known Issues
 
 - The app.module.ts has a TODO comment regarding TypeORM synchronize setting for different environments
 - The coding module may need refinement for handling errors and timeouts in code execution
 - The current implementation seems focused on Python with the createPythonTemplate function, suggesting limited multi-language support
+- Potential inconsistencies in code style and architecture that need alignment with NestJS standards
 
 ## Current Status Summary
 
-The A7M API is a functional NestJS backend for a coding platform with core features implemented. The recent development of the coding module with Judge0 integration has added essential code execution capabilities. The system can now handle the complete workflow from problem definition to code submission and evaluation.
+The A7M API is a functional NestJS backend for a coding platform with core features implemented. The recent development of the coding module with Judge0 integration has added essential code execution capabilities. The system can now handle the complete workflow from problem definition to code submission and evaluation. NestJS development standards have been established to ensure consistent code quality moving forward.
 
 ## Next Milestone
 
@@ -60,7 +63,8 @@ The next milestone appears to be enhancing the coding module with:
 2. Performance optimizations for code execution
 3. More robust error handling
 4. Integration with the front-end application
+5. Code refactoring to ensure adherence to NestJS standards
 
 ## Testing Status
 
-The project has Jest configured for both unit and E2E testing. While the test configuration is in place, additional tests may be needed for the recently added coding module to ensure proper functionality and error handling for code execution and evaluation.
+The project has Jest configured for both unit and E2E testing. While the test configuration is in place, additional tests may be needed for the recently added coding module to ensure proper functionality and error handling for code execution and evaluation. Testing practices should follow the standards defined in the NestJS rules.
